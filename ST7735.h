@@ -66,9 +66,9 @@
 // CS   - PA3 TFT_CS, active low to enable TFT
 // *CS  - (NC) SDC_CS, active low to enable SDC
 // MISO - (NC) MISO SPI data from SDC to microcontroller
-// SDA  – (NC) I2C data for ADXL345 accelerometer
-// SCL  – (NC) I2C clock for ADXL345 accelerometer
-// SDO  – (NC) I2C alternate address for ADXL345 accelerometer
+// SDA  â€“ (NC) I2C data for ADXL345 accelerometer
+// SCL  â€“ (NC) I2C clock for ADXL345 accelerometer
+// SDO  â€“ (NC) I2C alternate address for ADXL345 accelerometer
 // Backlight + - Light, backlight connected to +3.3 V
 
 // **********ADXL335 3-axis ST7735R*******************
@@ -82,9 +82,9 @@
 // CS   - PA3 TFT_CS, active low to enable TFT
 // *CS  - (NC) SDC_CS, active low to enable SDC
 // MISO - (NC) MISO SPI data from SDC to microcontroller
-// X– (NC) analog input X-axis from ADXL335 accelerometer
-// Y– (NC) analog input Y-axis from ADXL335 accelerometer
-// Z– (NC) analog input Z-axis from ADXL335 accelerometer
+// Xâ€“ (NC) analog input X-axis from ADXL335 accelerometer
+// Yâ€“ (NC) analog input Y-axis from ADXL335 accelerometer
+// Zâ€“ (NC) analog input Z-axis from ADXL335 accelerometer
 // Backlight + - Light, backlight connected to +3.3 V
 
 #ifndef _ST7735H_
@@ -457,6 +457,12 @@ void Output_Color(uint32_t newColor);
 
 //ADD COMMENTS
 
-void ST7735_ds_Init(int )
+void ST7735_ds_Init(int );
+
+void static commonInit(const uint8_t*);
+
+void ST7735_ds_DrawString(int , int , char *);
+
+uint16_t length_of(char *);
 
 #endif
