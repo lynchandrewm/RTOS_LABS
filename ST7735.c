@@ -67,9 +67,9 @@
 // CS   - PA3 TFT_CS, active low to enable TFT
 // *CS  - (NC) SDC_CS, active low to enable SDC
 // MISO - (NC) MISO SPI data from SDC to microcontroller
-// SDA  – (NC) I2C data for ADXL345 accelerometer
-// SCL  – (NC) I2C clock for ADXL345 accelerometer
-// SDO  – (NC) I2C alternate address for ADXL345 accelerometer
+// SDA  â€“ (NC) I2C data for ADXL345 accelerometer
+// SCL  â€“ (NC) I2C clock for ADXL345 accelerometer
+// SDO  â€“ (NC) I2C alternate address for ADXL345 accelerometer
 // Backlight + - Light, backlight connected to +3.3 V
 
 // **********ADXL335 3-axis ST7735R*******************
@@ -83,9 +83,9 @@
 // CS   - PA3 TFT_CS, active low to enable TFT
 // *CS  - (NC) SDC_CS, active low to enable SDC
 // MISO - (NC) MISO SPI data from SDC to microcontroller
-// X– (NC) analog input X-axis from ADXL335 accelerometer
-// Y– (NC) analog input Y-axis from ADXL335 accelerometer
-// Z– (NC) analog input Z-axis from ADXL335 accelerometer
+// Xâ€“ (NC) analog input X-axis from ADXL335 accelerometer
+// Yâ€“ (NC) analog input Y-axis from ADXL335 accelerometer
+// Zâ€“ (NC) analog input Z-axis from ADXL335 accelerometer
 // Backlight + - Light, backlight connected to +3.3 V
 
 #include <stdio.h>
@@ -223,7 +223,7 @@ uint16_t StTextColor = ST7735_YELLOW;
 #define ST7735_GMCTRP1 0xE0
 #define ST7735_GMCTRN1 0xE1
 
-void static commonInit(const uint8_t*);
+
 // standard ascii 5x7 font
 // originally from glcdfont.c from Adafruit project
 static const uint8_t Font[] = {
@@ -501,15 +501,87 @@ static uint16_t screen1_current_y = 0;
 
 void ST7735_ds_Init(int zero_lines){
   screen0_height = 10*zero_lines;
+  screen1_height = _height - screen0_height;
 	ST7735_InitR(INITR_REDTAB);
-  
   ST7735_DrawFastHLine(0, screen0_height, _width, ST7735_WHITE);
   
-	
+  screen1_current_y = screen0_height;
 }
 
 
-//void ST7735_ds_
+void ST7735_ds_DrawString(int device, int line, char *string)
+{
+  int x, y;
+  x = 0;
+  if(device == 0){
+    y = line*10;
+    if(y > screen0_height || x > _width) // better check here needed
+      return;
+  }
+  else{
+    y = line*10 + screen0_height;
+    if(y > screen1_height || x > _width) //better check here needed
+      return;
+  }
+  ST7735_DrawString(x, y, string, StTextColor); 
+}
+//THIS WAS DRAGGED UP SO I COULD USE IT 
+//-----------------------fillmessage-----------------------
+// Output a 32-bit number in unsigned decimal format
+// Input: 32-bit number to be transferred
+// Output: none
+// Variable format 1-10 digits with no space before or after
+char Message[12];
+uint32_t Messageindex;
+
+void fillmessage(uint32_t n){
+// This function uses recursion to convert decimal number
+//   of unspecified length as an ASCII string
+  if(n >= 10){
+    fillmessage(n/10);
+    n = n%10;
+  }
+  Message[Messageindex] = (n+'0'); /* n is between 0 and 9 */
+  if(Messageindex<11)Messageindex++;
+}
+
+void ST7735_ds_DrawMessage(int device, int line, char *string, int32_t value){
+  int x = 6*(length_of(string)+1);
+  int y = 0;
+  char colon = ':';
+  
+  if(device == 1)
+    y = 10*line + screen0_height;
+  else
+    y = 10*line;
+  
+  ST7735_ds_DrawString(device, line, string); //use the already defined dual screen string function for string
+  ST7735_DrawCharS(x, y, colon, StTextColor, ST7735_BLACK, 1); //draw a colon after this
+  
+  x+=6; //shift x to the next character location
+  
+  //if value is negative, get its abs value and draw a '-' on screen
+  if(value < 0){
+    char minus = '-';
+    value = ~value;
+    value = value+1;
+    ST7735_DrawCharS(x, y, minus, StTextColor, ST7735_BLACK, 1);
+    x+=6;
+  }
+  
+  x+=6;
+  //fill the 'Message' global var with string of value and display
+  fillmessage(value);
+  ST7735_DrawString(x, y, Message, StTextColor);
+  
+}
+
+uint16_t length_of(char *str){
+  int i;
+  for(i = 0; str[i] != '\0'; ++i);
+  return i;
+  
+}
 //void ST7735_dualScreenInit(void){
 //  ST7735_dualScreenInit(8);
 //}
@@ -1171,24 +1243,7 @@ uint32_t ST7735_DrawString(uint16_t x, uint16_t y, char *pt, int16_t textColor){
   return count;  // number of characters printed
 }
 
-//-----------------------fillmessage-----------------------
-// Output a 32-bit number in unsigned decimal format
-// Input: 32-bit number to be transferred
-// Output: none
-// Variable format 1-10 digits with no space before or after
-char Message[12];
-uint32_t Messageindex;
 
-void fillmessage(uint32_t n){
-// This function uses recursion to convert decimal number
-//   of unspecified length as an ASCII string
-  if(n >= 10){
-    fillmessage(n/10);
-    n = n%10;
-  }
-  Message[Messageindex] = (n+'0'); /* n is between 0 and 9 */
-  if(Messageindex<11)Messageindex++;
-}
 //********ST7735_SetCursor*****************
 // Move the cursor to the desired X- and Y-position.  The
 // next character will be printed here.  X=0 is the leftmost
