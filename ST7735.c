@@ -90,8 +90,9 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdarg.h>
 #include "ST7735.h"
-#include "tm4c123gh6pm.h"
+#include "../inc/tm4c123gh6pm.h"
 
 // 16 rows (0 to 15) and 21 characters (0 to 20)
 // Requires (11 + size*size*6*8) bytes of transmission for each character
@@ -499,6 +500,7 @@ static uint16_t screen0_current_y = 0;
 static uint16_t screen1_current_x = 0;
 static uint16_t screen1_current_y = 0;
 
+/*
 void ST7735_ds_Init(int zero_lines){
   screen0_height = 10*zero_lines;
   screen1_height = _height - screen0_height;
@@ -507,7 +509,60 @@ void ST7735_ds_Init(int zero_lines){
   
   screen1_current_y = screen0_height;
 }
+*/
 
+//globals
+uint16_t static xstart[5];
+uint16_t static xstop[5];
+uint16_t static ystart[5];
+uint16_t static ystop[5];
+uint16_t static ds_StX[5];
+uint16_t static ds_StY[5];
+
+void ST7735_ds_InitB(int8_t numOfScreens, ...){
+  ST7735_InitB();
+  va_list arguments;
+  va_start(arguments, numOfScreens);
+  ST7735_ds_commonInit(numOfScreens, arguments);
+  va_end(argments);
+}
+
+void ST7735_ds_InitR(enum initRFags option, int8_t numOfScreens, ...){
+  ST7735_InitR(option);
+  va_list arguments;
+  va_start(arguments, numOfScreens);
+  ST7735_ds_commonInit(numOfScreens, arguments);
+  va_end(argments);
+}
+
+void static ST7735_ds_commonInit(int8_t n, ...){
+  va_list args;
+  va_start(args, n);
+  uint8_t numLines[5];
+  uint8_t totalLines = 0;
+  for(int i = 0; i < n; i++){
+    numLines[i] = va_arg(args,uint8_t);
+    if(numLines[i]<3){ //no screens allowed less than 3 lines 
+      while(1){/*error*/}
+    }
+    totalLines += numLines[i];
+  }
+  if(totalLines>16){   //can't exceed the LCD limits
+    while(1){/*error*/}
+  }
+  uint16_t nextAvailable = 0;
+  for(int i = 0; i < n; i++){
+    xstart[i] = 0;
+    xstop[i] = _width;
+    ystart[i] = nextAvailable;
+    ystop[i] = nextAvailable + numLines[i];
+    nextAvailable = ystop[i] + 1;
+    ST7735_DrawFastHLine(0, (ystop[i]*10)+9, _width, ST7735_WHITE);
+    ds_StX[i] = 0;
+    ds_StY[i] = 0;
+  }
+  va_end(args);
+}
 
 void ST7735_ds_DrawString(int device, int line, char *string)
 {
