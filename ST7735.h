@@ -192,21 +192,6 @@ void ST7735_ds_FillScreen(int8_t device, uint16_t color);
 // Output: none
 void ST7735_ds_FillRect(int8_t device, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color);
 
-//------------ST7735_ds_Color565------------
-// Pass 8-bit (each) R,G,B and get back 16-bit packed color.
-// Input: r red value
-//        g green value
-//        b blue value
-// Output: 16-bit color
-uint16_t ST7735_ds_Color565(int8_t device, uint8_t r, uint8_t g, uint8_t b);
-
-//------------ST7735_ds_SwapColor------------
-// Swaps the red and blue values of the given 16-bit packed color;
-// green is unchanged.
-// Input: x 16-bit color in format B, G, R
-// Output: 16-bit color in format R, G, B
-uint16_t ST7735_ds_SwapColor(int8_t device, uint16_t x) ;
-
 //------------ST7735_ds_DrawBitmap------------
 // Displays a 16-bit color BMP image.  A bitmap file that is created
 // by a PC image processing program has a header and may be padded

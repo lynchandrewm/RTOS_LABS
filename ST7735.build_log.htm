@@ -3,20 +3,36 @@
 <pre>
 <h1>µVision Build Log</h1>
 <h2>Project:</h2>
-C:\Keil\ValvanoWareTM4C123\M_Lab1\ST7735.uvproj
-Project File Date:  01/20/2017
+C:\Keil\ValvanoWareTM4C123\RTOS_LAB_1-master\ST7735.uvproj
+Project File Date:  01/25/2017
 
 <h2>Output:</h2>
-Rebuild target 'ST7735'
-assembling startup.s...
-compiling PLL.c...
+Build target 'ST7735'
 compiling ST7735.c...
-compiling ST7735TestMain.c...
+ST7735.c(791): warning:  #940-D: missing return statement at end of non-void function "ST7735_ds_Color565"
+  uint16_t ST7735_ds_Color565(int8_t device, uint8_t r, uint8_t g, uint8_t b){}
+ST7735.c(798): warning:  #940-D: missing return statement at end of non-void function "ST7735_ds_SwapColor"
+  uint16_t ST7735_ds_SwapColor(int8_t device, uint16_t x) {}
+ST7735.c(826): warning:  #940-D: missing return statement at end of non-void function "ST7735_ds_DrawString"
+  uint32_t ST7735_ds_DrawString(int8_t device, uint16_t x, uint16_t y, char *pt, int16_t textColor){}
+ST7735.c(677): warning:  #550-D: variable "xstart" was set but never used
+  uint16_t static xstart[4];     //pixels
+ST7735.c(678): warning:  #550-D: variable "xstop" was set but never used
+  uint16_t static xstop[4];      //pixels
+ST7735.c(1736): warning:  #177-D: function "LengthOfString" was declared but never referenced
+  uint16_t static LengthOfString(char *str){
+ST7735.c: 6 warnings, 0 errors
 linking...
-Program Size: Code=3012 RO-data=2052 RW-data=44 ZI-data=1028  
-".\ST7735.axf" - 0 Error(s), 0 Warning(s).
-Load "C:\\Keil\\ValvanoWareTM4C123\\M_Lab1\\ST7735.axf" 
-Connecting: Mode=JTAG, Speed=1000000Hz
-Erase Done.
-Programming Done.
-Verify OK.
+Program Size: Code=2336 RO-data=2052 RW-data=100 ZI-data=1028  
+".\ST7735.axf" - 0 Error(s), 6 Warning(s).
+ variable "xstart" was set but never used
+  uint16_t static xstart[4];     //pixels
+ST7735.c(678): warning:  #550-D: variable "xstop" was set but never used
+  uint16_t static xstop[4];      //pixels
+ST7735.c(1736): warning:  #177-D: function "LengthOfString" was declared but never referenced
+  uint16_t static LengthOfString(char *str){
+ST7735.c: 6 warnings, 3 errors
+".\ST7735.axf" - 3 Error(s), 6 Warning(s).
+Target not created
+(s).
+Target not created

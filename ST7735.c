@@ -674,13 +674,13 @@ uint32_t StY=0; // position along the vertical axis 0 to 15
 uint16_t StTextColor = ST7735_YELLOW;
 
 // for dual screen
-uint16_t static xstart[4];  //pixels
-uint16_t static xstop[4];   //pixels
-uint16_t static ystart[4];  //pixels
-uint16_t static ystop[4];   //pixels
-uint16_t static ds_StX[4];  //character cursor
-uint16_t static ds_StY[4];  //character cursor
-
+uint16_t static xstart[4];     //pixels
+uint16_t static xstop[4];      //pixels
+uint16_t static ystart[4];     //pixels
+uint16_t static ystop[4];      //pixels
+uint16_t static ds_StX[4];     //character cursor
+uint16_t static ds_StY[4];     //character cursor
+uint16_t static ds_StColor[4]; //text color for each screen
 // for ascii translators
 char Message[12];
 uint32_t Messageindex;
@@ -737,6 +737,7 @@ void static ST7735_ds_commonInit(int8_t s0, int8_t s1, int8_t s2, int8_t s3){
     ystart[i] = lastBlockEnd + 1;
     ystop[i] = lastBlockEnd + (numLines[i]*10) - 1;
     lastBlockEnd = ystop[i];
+    ds_StColor[i] = ST7735_YELLOW;
     ST7735_DrawFastHLine(0, ystop[i], _width, ST7735_WHITE);
     ds_StX[i] = 0;
     ds_StY[i] = 0;
@@ -744,57 +745,120 @@ void static ST7735_ds_commonInit(int8_t s0, int8_t s1, int8_t s2, int8_t s3){
 }
 
 //------------ST7735_ds_Message------------
-// 
+// I'D LOOK AT THIS, NOT SURE IT IS GOOD!!!!!!!!!!!!!!!!!!!
 // Input: 
 // Output: 
-void ST7735_ds_Message(int8_t device, int8_t line, char* string, int32_t value){}
+void ST7735_ds_Message(int8_t device, int8_t line, char* string, int32_t value){
+  
+  int x, y;
+  x = 6*(LengthOfString(string)+1);
+  y = 10*line;
+  
+  if(y < (ystart[device]) || y > (ystop[device])) //is it in the right region?
+    return;
+  
+  char colon = ':';
+  
+  ST7735_ds_DrawString(device, 0, y, string, ds_StColor[device]); //use the already defined dual screen string function for string
+  ST7735_DrawCharS(x, y, colon, ds_StColor[device], ST7735_BLACK, 1); //draw a colon after this
+  
+  x+=12; //shift x two character locations
+  
+  //if value is negative, get its abs value and draw a '-' on screen
+  if(value < 0){
+    char minus = '-';
+    value = ~value;
+    value = value+1;
+    ST7735_DrawCharS(x, y, minus, ds_StColor[device], ST7735_BLACK, 1);
+    x+=6;
+  }
+  
+  
+  //fill the 'Message' global var with string of value and display
+  fillmessage(value);
+  ST7735_DrawString(x, y, Message, StTextColor);
+  
+  ds_StY[device] = y*10;
+  ds_StX[device] = x*6;
+}
 
 //------------ST7735_ds_DrawPixel------------
 // 
 // Input: 
 // Output: 
-void ST7735_ds_DrawPixel(int8_t device, int16_t x, int16_t y, uint16_t color){}
+void ST7735_ds_DrawPixel(int8_t device, int16_t x, int16_t y, uint16_t color){
+  if(x > _width || x < 0)
+    return;
+  if(y >= ystart[device] && y <= ystop[device]){
+    ST7735_DrawPixel(x, y, color);
+    ds_StX[device] = x+1;
+    ds_StY[device] = y;
+  }
+}
 
 //------------ST7735_ds_DrawFastVLine------------
 // 
 // Input: 
 // Output: 
-void ST7735_ds_DrawFastVLine(int8_t device, int16_t x, int16_t y, int16_t h, uint16_t color){}
+void ST7735_ds_DrawFastVLine(int8_t device, int16_t x, int16_t y, int16_t h, uint16_t color){
+  if(x > _width || x < 0)
+    return;
+  if(y < (ystart[device]) || y > (ystop[device]))
+    return;
+  
+  if((y+h)> ystop[device])
+    h = ystop[device] - y;
+  ST7735_DrawFastVLine(x, y, h, color);
+}
 
 
 //------------ST7735_ds_DrawFastHLine------------
 // 
 // Input: 
 // Output: 
-void ST7735_ds_DrawFastHLine(int8_t device, int16_t x, int16_t y, int16_t w, uint16_t color){}
+void ST7735_ds_DrawFastHLine(int8_t device, int16_t x, int16_t y, int16_t w, uint16_t color){
+  if(x > _width || x < 0)
+    return;
+  if(y < (ystart[device]) || y > (ystop[device]))
+    return;
+  
+  if((x+w)> _width)
+    w = _width - x;
+  
+  ST7735_DrawFastHLine(x, y, w, color);
+}
 
 
 //------------ST7735_ds_FillScreen------------
 // 
 // Input: 
 // Output: 
-void ST7735_ds_FillScreen(int8_t device, uint16_t color){}
+void ST7735_ds_FillScreen(int8_t device, uint16_t color){
+  ds_StX[device] = _width;
+  ds_StY[device] = ystop[device];
+  ST7735_ds_FillRect(device, xstart[device], ystart[device], _width, (ystop[device] - ystart[device]), color);
+}
 
 
 //------------ST7735_ds_FillRect------------
 // 
 // Input: 
 // Output: 
-void ST7735_ds_FillRect(int8_t device, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color){}
-
-
-//------------ST7735_ds_Color565------------
-// 
-// Input: 
-// Output: 
-uint16_t ST7735_ds_Color565(int8_t device, uint8_t r, uint8_t g, uint8_t b){}
-
-
-//------------ST7735_ds_SwapColor------------
-// 
-// Input: 
-// Output: 
-uint16_t ST7735_ds_SwapColor(int8_t device, uint16_t x) {}
+void ST7735_ds_FillRect(int8_t device, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color){
+  if(x > _width || x < 0)
+    return;
+  if(y < (ystart[device]) || y > (ystop[device]))
+    return;
+  
+  if((y+h)> ystop[device])
+    h = ystop[device] - y;
+  
+  if((x+w)> _width)
+    w = _width - x;
+  ds_StX[device] = x+w;
+  ds_StY[device] = y+h;
+  ST7735_FillRect(x, y, w, h, color);
+}
 
 
 //------------ST7735_ds_DrawBitmap------------
@@ -808,28 +872,57 @@ void ST7735_ds_DrawBitmap(int8_t device, int16_t x, int16_t y, const uint16_t *i
 // 
 // Input: 
 // Output: 
-void ST7735_ds_DrawCharS(int8_t device, int16_t x, int16_t y, char c, int16_t textColor, int16_t bgColor, uint8_t size){}
+void ST7735_ds_DrawCharS(int8_t device, int16_t x, int16_t y, char c, int16_t textColor, int16_t bgColor, uint8_t size){
+  if(x > _width || x < 0)
+    return;
+  if(y < (ystart[device]) || y > (ystop[device]))
+    return;
+  ds_StX[device] = x+6;
+  ds_StY[device] = y;
+  ST7735_DrawCharS(x, y, c, textColor, bgColor, size);
+}
 
 
 //------------ST7735_ds_DrawChar------------
 // 
 // Input: 
 // Output: 
-void ST7735_ds_DrawChar(int8_t device, int16_t x, int16_t y, char c, int16_t textColor, int16_t bgColor, uint8_t size){}
+void ST7735_ds_DrawChar(int8_t device, int16_t x, int16_t y, char c, int16_t textColor, int16_t bgColor, uint8_t size){
+  if(x > _width || x < 0)
+    return;
+  if(y < (ystart[device]) || y > (ystop[device]))
+    return;
+  
+  ds_StX[device] = x+6;
+  ds_StY[device] = y;
+  ST7735_DrawChar(x, y, c, textColor, bgColor, size);
+}
 
 
 //------------ST7735_ds_DrawString------------
 // 
 // Input: 
 // Output: 
-uint32_t ST7735_ds_DrawString(int8_t device, uint16_t x, uint16_t y, char *pt, int16_t textColor){}
+uint32_t ST7735_ds_DrawString(int8_t device, uint16_t x, uint16_t y, char *pt, int16_t textColor){
+  if(x > _width || x < 0)
+    return -1;
+  if(y < (ystart[device]) || y > (ystop[device]))
+    return -1;
+  
+  ds_StX[device] = x*6 + (LengthOfString(pt)+1)*6;
+  ds_StY[device] = y*10;
+  return ST7735_DrawString(x, y, pt, textColor); 
+}
 
 
 //------------ST7735_ds_SetCursor------------
 // 
 // Input: 
 // Output: 
-void ST7735_ds_SetCursor(int8_t device, uint32_t newX, uint32_t newY){}
+void ST7735_ds_SetCursor(int8_t device, uint32_t newX, uint32_t newY){
+  ds_StY[device] = newY;
+  ds_StX[device] = newX;
+}
 
 
 //------------ST7735_ds_OutUDec------------
@@ -885,42 +978,80 @@ void ST7735_ds_PlotBar(int8_t device, int32_t y){}
 // 
 // Input: 
 // Output: 
-void ST7735_ds_PlotdBfs(int8_t device, int32_t y){}
+void ST7735_ds_PlotdBfs(int8_t device, int32_t y){
+
+}
 
 
 //------------ST7735_ds_PlotNext------------
 // 
 // Input: 
 // Output: 
-void ST7735_ds_PlotNext(int8_t device){}
+void ST7735_ds_PlotNext(int8_t device){
+  if(ds_StX[device]==127){
+    ds_StX[device] = 0;
+  } else{
+    ds_StX[device]++;
+  }
+}
 
 
 //------------ST7735_ds_PlotNextErase------------
 // 
 // Input: 
 // Output: 
-void ST7735_ds_PlotNextErase(int8_t device){}
+void ST7735_ds_PlotNextErase(int8_t device){
+if(ds_StX[device]==127){
+    ds_StX[device]= 0;
+  } else{
+    ds_StX[device]++;
+  }
+  ST7735_DrawFastVLine(ds_StX[device],ystart[device],(ystop[device] - ystart[device]),ST7735_Color565(228,228,228));
+}
 
 
 //------------ST7735_ds_OutChar------------
 // 
 // Input: 
 // Output: 
-void ST7735_ds_OutChar(int8_t device, char ch){}
+void ST7735_ds_OutChar(int8_t device, char ch){
+  if((ch == 10) || (ch == 13) || (ch == 27)){
+    ds_StY[device]++; ds_StX[device]=0;
+    if(ds_StY[device]>ystop[device]){
+      ds_StY[device] = ystart[device];
+    }
+    ST7735_DrawString(0,ds_StY[device], "                     ",ds_StColor[device]);
+    return;
+  }
+  ST7735_DrawCharS(ds_StX[device]*6,ds_StY[device]*10,ch,ds_StColor[device],ST7735_BLACK, 1);
+  ds_StX[device]++;
+  if(ds_StX[device]>20){ //last char in a line, just put a * to show more should be displayed
+    ds_StX[device] = 20;
+    ST7735_DrawCharS(ds_StX[device]*6,ds_StY[device]*10,'*',ds_StColor[device],ST7735_BLACK, 1);
+  }
+  return;
+}
 
 
 //------------ST7735_ds_OutString------------
 // 
 // Input: 
 // Output: 
-void ST7735_ds_OutString(int8_t device, char *ptr){}
+void ST7735_ds_OutString(int8_t device, char *ptr){
+  while(*ptr){
+    ST7735_ds_OutChar(device, *ptr);
+    ptr = ptr + 1;
+  }
+}
 
 
 //------------ST7735_ds_SetTextColor------------
 // 
 // Input: 
 // Output: 
-void ST7735_ds_SetTextColor(int8_t device, uint16_t color){}
+void ST7735_ds_SetTextColor(int8_t device, uint16_t color){
+  ds_StColor[device] = color;
+}
 
 /*
 uint32_t ST7735_ds_DrawString(int device, int line, char *string)
