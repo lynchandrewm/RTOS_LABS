@@ -84,13 +84,43 @@ Section Cross References
     st7735.o(i.ST7735_SetRotation) refers to st7735.o(i.writedata) for writedata
     st7735.o(i.ST7735_SetRotation) refers to st7735.o(.data) for Rotation
     st7735.o(i.ST7735_SetTextColor) refers to st7735.o(.data) for StTextColor
+    st7735.o(i.ST7735_ds_DrawChar) refers to st7735.o(i.ST7735_DrawChar) for ST7735_DrawChar
+    st7735.o(i.ST7735_ds_DrawChar) refers to st7735.o(.data) for _width
+    st7735.o(i.ST7735_ds_DrawCharS) refers to st7735.o(i.ST7735_DrawCharS) for ST7735_DrawCharS
+    st7735.o(i.ST7735_ds_DrawCharS) refers to st7735.o(.data) for _width
+    st7735.o(i.ST7735_ds_DrawFastHLine) refers to st7735.o(i.ST7735_DrawFastHLine) for ST7735_DrawFastHLine
+    st7735.o(i.ST7735_ds_DrawFastHLine) refers to st7735.o(.data) for _width
+    st7735.o(i.ST7735_ds_DrawFastVLine) refers to st7735.o(i.ST7735_DrawFastVLine) for ST7735_DrawFastVLine
+    st7735.o(i.ST7735_ds_DrawFastVLine) refers to st7735.o(.data) for _width
+    st7735.o(i.ST7735_ds_DrawPixel) refers to st7735.o(i.ST7735_DrawPixel) for ST7735_DrawPixel
+    st7735.o(i.ST7735_ds_DrawPixel) refers to st7735.o(.data) for _width
+    st7735.o(i.ST7735_ds_DrawString) refers to st7735.o(i.LengthOfString) for LengthOfString
+    st7735.o(i.ST7735_ds_DrawString) refers to st7735.o(i.ST7735_DrawString) for ST7735_DrawString
+    st7735.o(i.ST7735_ds_DrawString) refers to st7735.o(.data) for _width
+    st7735.o(i.ST7735_ds_FillRect) refers to st7735.o(i.ST7735_FillRect) for ST7735_FillRect
+    st7735.o(i.ST7735_ds_FillRect) refers to st7735.o(.data) for _width
+    st7735.o(i.ST7735_ds_FillScreen) refers to st7735.o(i.ST7735_ds_FillRect) for ST7735_ds_FillRect
+    st7735.o(i.ST7735_ds_FillScreen) refers to st7735.o(.data) for _width
     st7735.o(i.ST7735_ds_InitB) refers to st7735.o(i.ST7735_InitB) for ST7735_InitB
     st7735.o(i.ST7735_ds_InitB) refers to st7735.o(i.ST7735_ds_commonInit) for ST7735_ds_commonInit
     st7735.o(i.ST7735_ds_InitR) refers to st7735.o(i.ST7735_InitR) for ST7735_InitR
     st7735.o(i.ST7735_ds_InitR) refers to st7735.o(i.ST7735_ds_commonInit) for ST7735_ds_commonInit
+    st7735.o(i.ST7735_ds_Message) refers to st7735.o(i.LengthOfString) for LengthOfString
+    st7735.o(i.ST7735_ds_Message) refers to st7735.o(i.ST7735_ds_DrawString) for ST7735_ds_DrawString
+    st7735.o(i.ST7735_ds_Message) refers to st7735.o(i.ST7735_DrawCharS) for ST7735_DrawCharS
+    st7735.o(i.ST7735_ds_Message) refers to st7735.o(i.fillmessage) for fillmessage
+    st7735.o(i.ST7735_ds_Message) refers to st7735.o(i.ST7735_DrawString) for ST7735_DrawString
+    st7735.o(i.ST7735_ds_Message) refers to st7735.o(.data) for ystart
+    st7735.o(i.ST7735_ds_Message) refers to st7735.o(.bss) for Message
     st7735.o(i.ST7735_ds_OutChar) refers to st7735.o(i.ST7735_DrawString) for ST7735_DrawString
     st7735.o(i.ST7735_ds_OutChar) refers to st7735.o(i.ST7735_DrawCharS) for ST7735_DrawCharS
     st7735.o(i.ST7735_ds_OutChar) refers to st7735.o(.data) for ds_StY
+    st7735.o(i.ST7735_ds_OutString) refers to st7735.o(i.ST7735_ds_OutChar) for ST7735_ds_OutChar
+    st7735.o(i.ST7735_ds_PlotNext) refers to st7735.o(.data) for ds_StX
+    st7735.o(i.ST7735_ds_PlotNextErase) refers to st7735.o(i.ST7735_Color565) for ST7735_Color565
+    st7735.o(i.ST7735_ds_PlotNextErase) refers to st7735.o(i.ST7735_DrawFastVLine) for ST7735_DrawFastVLine
+    st7735.o(i.ST7735_ds_PlotNextErase) refers to st7735.o(.data) for ds_StX
+    st7735.o(i.ST7735_ds_SetCursor) refers to st7735.o(.data) for ds_StY
     st7735.o(i.ST7735_ds_SetTextColor) refers to st7735.o(.data) for ds_StColor
     st7735.o(i.ST7735_ds_commonInit) refers to st7735.o(i.ST7735_DrawFastHLine) for ST7735_DrawFastHLine
     st7735.o(i.ST7735_ds_commonInit) refers to st7735.o(.data) for xstart
@@ -447,33 +477,31 @@ Removing Unused input sections from the image.
     Removing st7735.o(i.ST7735_SetRotation), (212 bytes).
     Removing st7735.o(i.ST7735_SetTextColor), (12 bytes).
     Removing st7735.o(i.ST7735_SwapColor), (18 bytes).
-    Removing st7735.o(i.ST7735_ds_Color565), (6 bytes).
     Removing st7735.o(i.ST7735_ds_DrawBitmap), (8 bytes).
-    Removing st7735.o(i.ST7735_ds_DrawChar), (8 bytes).
-    Removing st7735.o(i.ST7735_ds_DrawCharS), (8 bytes).
-    Removing st7735.o(i.ST7735_ds_DrawFastHLine), (6 bytes).
-    Removing st7735.o(i.ST7735_ds_DrawFastVLine), (6 bytes).
-    Removing st7735.o(i.ST7735_ds_DrawPixel), (2 bytes).
-    Removing st7735.o(i.ST7735_ds_DrawString), (8 bytes).
-    Removing st7735.o(i.ST7735_ds_FillRect), (8 bytes).
-    Removing st7735.o(i.ST7735_ds_FillScreen), (2 bytes).
+    Removing st7735.o(i.ST7735_ds_DrawChar), (116 bytes).
+    Removing st7735.o(i.ST7735_ds_DrawCharS), (116 bytes).
+    Removing st7735.o(i.ST7735_ds_DrawFastHLine), (104 bytes).
+    Removing st7735.o(i.ST7735_ds_DrawFastVLine), (108 bytes).
+    Removing st7735.o(i.ST7735_ds_DrawPixel), (100 bytes).
+    Removing st7735.o(i.ST7735_ds_DrawString), (144 bytes).
+    Removing st7735.o(i.ST7735_ds_FillRect), (160 bytes).
+    Removing st7735.o(i.ST7735_ds_FillScreen), (104 bytes).
     Removing st7735.o(i.ST7735_ds_InitB), (32 bytes).
     Removing st7735.o(i.ST7735_ds_InvertDisplay), (2 bytes).
-    Removing st7735.o(i.ST7735_ds_Message), (2 bytes).
-    Removing st7735.o(i.ST7735_ds_OutChar), (264 bytes).
-    Removing st7735.o(i.ST7735_ds_OutString), (2 bytes).
+    Removing st7735.o(i.ST7735_ds_Message), (244 bytes).
+    Removing st7735.o(i.ST7735_ds_OutChar), (272 bytes).
+    Removing st7735.o(i.ST7735_ds_OutString), (28 bytes).
     Removing st7735.o(i.ST7735_ds_OutUDec), (2 bytes).
     Removing st7735.o(i.ST7735_ds_PlotBar), (2 bytes).
     Removing st7735.o(i.ST7735_ds_PlotClear), (2 bytes).
     Removing st7735.o(i.ST7735_ds_PlotLine), (2 bytes).
-    Removing st7735.o(i.ST7735_ds_PlotNext), (2 bytes).
-    Removing st7735.o(i.ST7735_ds_PlotNextErase), (2 bytes).
+    Removing st7735.o(i.ST7735_ds_PlotNext), (40 bytes).
+    Removing st7735.o(i.ST7735_ds_PlotNextErase), (104 bytes).
     Removing st7735.o(i.ST7735_ds_PlotPoint), (2 bytes).
     Removing st7735.o(i.ST7735_ds_PlotPoints), (2 bytes).
     Removing st7735.o(i.ST7735_ds_PlotdBfs), (2 bytes).
-    Removing st7735.o(i.ST7735_ds_SetCursor), (2 bytes).
+    Removing st7735.o(i.ST7735_ds_SetCursor), (24 bytes).
     Removing st7735.o(i.ST7735_ds_SetTextColor), (12 bytes).
-    Removing st7735.o(i.ST7735_ds_SwapColor), (4 bytes).
     Removing st7735.o(i.ferror), (8 bytes).
     Removing st7735.o(i.fgetc), (6 bytes).
     Removing st7735.o(i.fillmessage), (72 bytes).
@@ -502,7 +530,7 @@ Removing Unused input sections from the image.
     Removing cdrcmple.o(.text), (40 bytes).
     Removing depilogue.o(.text), (190 bytes).
 
-85 unused section(s) (total 20528 bytes) removed from the image.
+83 unused section(s) (total 21860 bytes) removed from the image.
 
 ==============================================================================
 
@@ -847,16 +875,16 @@ Memory Map of the image
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x00000000   0x00000284   Code   RO            3  * RESET               startup.o
-    0x00000284   0x00000000   Code   RO          573  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
-    0x00000284   0x00000004   Code   RO          839    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
-    0x00000288   0x00000004   Code   RO          842    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
-    0x0000028c   0x00000000   Code   RO          844    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
-    0x0000028c   0x00000000   Code   RO          846    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
-    0x0000028c   0x00000008   Code   RO          847    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
-    0x00000294   0x00000000   Code   RO          849    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
-    0x00000294   0x00000000   Code   RO          851    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
-    0x00000294   0x00000004   Code   RO          840    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
-    0x00000298   0x00000024   Code   RO          869    .text               mc_w.l(init.o)
+    0x00000284   0x00000000   Code   RO          561  * .ARM.Collect$$$$00000000  mc_w.l(entry.o)
+    0x00000284   0x00000004   Code   RO          827    .ARM.Collect$$$$00000001  mc_w.l(entry2.o)
+    0x00000288   0x00000004   Code   RO          830    .ARM.Collect$$$$00000004  mc_w.l(entry5.o)
+    0x0000028c   0x00000000   Code   RO          832    .ARM.Collect$$$$00000008  mc_w.l(entry7b.o)
+    0x0000028c   0x00000000   Code   RO          834    .ARM.Collect$$$$0000000A  mc_w.l(entry8b.o)
+    0x0000028c   0x00000008   Code   RO          835    .ARM.Collect$$$$0000000B  mc_w.l(entry9a.o)
+    0x00000294   0x00000000   Code   RO          837    .ARM.Collect$$$$0000000D  mc_w.l(entry10a.o)
+    0x00000294   0x00000000   Code   RO          839    .ARM.Collect$$$$0000000F  mc_w.l(entry11a.o)
+    0x00000294   0x00000004   Code   RO          828    .ARM.Collect$$$$00002712  mc_w.l(entry2.o)
+    0x00000298   0x00000024   Code   RO          857    .text               mc_w.l(init.o)
     0x000002bc   0x00000020   Code   RO           34    i.Delay1ms          st7735.o
     0x000002dc   0x0000007c   Code   RO           12    i.PLL_Init          pll.o
     0x00000358   0x0000007c   Code   RO           45    i.ST7735_DrawFastHLine  st7735.o
@@ -864,29 +892,29 @@ Memory Map of the image
     0x00000480   0x00000024   Code   RO           50    i.ST7735_FillScreen  st7735.o
     0x000004a4   0x0000007c   Code   RO           52    i.ST7735_InitR      st7735.o
     0x00000520   0x00000020   Code   RO           65    i.ST7735_SetCursor  st7735.o
-    0x00000540   0x00000026   Code   RO           80    i.ST7735_ds_InitR   st7735.o
+    0x00000540   0x00000026   Code   RO           79    i.ST7735_ds_InitR   st7735.o
     0x00000566   0x00000002   PAD
-    0x00000568   0x000000dc   Code   RO           97    i.ST7735_ds_commonInit  st7735.o
-    0x00000644   0x0000000e   Code   RO          881    i.__scatterload_copy  mc_w.l(handlers.o)
-    0x00000652   0x00000002   Code   RO          882    i.__scatterload_null  mc_w.l(handlers.o)
-    0x00000654   0x0000000e   Code   RO          883    i.__scatterload_zeroinit  mc_w.l(handlers.o)
-    0x00000662   0x00000056   Code   RO           98    i.commandList       st7735.o
-    0x000006b8   0x00000184   Code   RO           99    i.commonInit        st7735.o
-    0x0000083c   0x0000001e   Code   RO          490    i.main              st7735testmain.o
+    0x00000568   0x000000dc   Code   RO           95    i.ST7735_ds_commonInit  st7735.o
+    0x00000644   0x0000000e   Code   RO          869    i.__scatterload_copy  mc_w.l(handlers.o)
+    0x00000652   0x00000002   Code   RO          870    i.__scatterload_null  mc_w.l(handlers.o)
+    0x00000654   0x0000000e   Code   RO          871    i.__scatterload_zeroinit  mc_w.l(handlers.o)
+    0x00000662   0x00000056   Code   RO           96    i.commandList       st7735.o
+    0x000006b8   0x00000184   Code   RO           97    i.commonInit        st7735.o
+    0x0000083c   0x0000001e   Code   RO          478    i.main              st7735testmain.o
     0x0000085a   0x00000002   PAD
-    0x0000085c   0x00000074   Code   RO          105    i.setAddrWindow     st7735.o
-    0x000008d0   0x00000030   Code   RO          106    i.writecommand      st7735.o
-    0x00000900   0x00000020   Code   RO          107    i.writedata         st7735.o
-    0x00000920   0x000007e2   Data   RO          109    .constdata          st7735.o
+    0x0000085c   0x00000074   Code   RO          103    i.setAddrWindow     st7735.o
+    0x000008d0   0x00000030   Code   RO          104    i.writecommand      st7735.o
+    0x00000900   0x00000020   Code   RO          105    i.writedata         st7735.o
+    0x00000920   0x000007e2   Data   RO          107    .constdata          st7735.o
     0x00001102   0x00000002   PAD
-    0x00001104   0x00000020   Data   RO          879    Region$$Table       anon$$obj.o
+    0x00001104   0x00000020   Data   RO          867    Region$$Table       anon$$obj.o
 
 
     Execution Region ER_RW (Base: 0x20000000, Size: 0x00000064, Max: 0xffffffff, ABSOLUTE)
 
     Base Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x00000064   Data   RW          110    .data               st7735.o
+    0x20000000   0x00000064   Data   RW          108    .data               st7735.o
 
 
     Execution Region ER_ZI (Base: 0x20000064, Size: 0x00000404, Max: 0xffffffff, ABSOLUTE)
