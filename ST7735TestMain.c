@@ -72,7 +72,7 @@
 #include <stdint.h>
 #include "ST7735.h"
 #include "PLL.h"
-#include "tm4c123gh6pm.h"
+#include "../inc/tm4c123gh6pm.h"
 
 void DelayWait10ms(uint32_t n);
 
@@ -502,15 +502,24 @@ const uint16_t Logo[] = {
 };
 
 
+int main(void){
+  PLL_Init(80);
+  uint8_t lines = 8;
+  ST7735_ds_InitR(INITR_REDTAB, 0, 5, 6, 5);
+  
+}
+
+
+
 int main0(void){
-  PLL_Init();
+  PLL_Init(80);
   Output_Init();
   printf("hello world");
   while(1){
   }
 }
 int main1(void){uint32_t j; // main 1
-  PLL_Init();
+  PLL_Init(80);
   ST7735_InitR(INITR_REDTAB);
   ST7735_OutString("Graphics test\n");
   ST7735_OutString("cubic function\n");
@@ -523,7 +532,7 @@ int main1(void){uint32_t j; // main 1
   }
 }
 int main7(void){ int i; // main 7
-  PLL_Init();                           // set system clock to 80 MHz
+  PLL_Init(80);                           // set system clock to 80 MHz
   ST7735_InitR(INITR_REDTAB);
   ST7735_FillRect(20,20,2,2,ST7735_YELLOW);
   for(i=0;i<80;i++){
@@ -532,15 +541,11 @@ int main7(void){ int i; // main 7
   while(1){
   }
 }
-int main(void){
-  PLL_Init();
-  ST7735_ds_Init(8);
-  
-}
+
 int main10(void){  // main 2
   int x, y, dx, dy;
 //  uint8_t red, green, blue;
-  PLL_Init();                           // set system clock to 80 MHz
+  PLL_Init(80);                           // set system clock to 80 MHz
   // test DrawChar() and DrawCharS()
   ST7735_InitR(INITR_REDTAB);
   ST7735_DrawCharS(0, 0, 'c', ST7735_Color565(255, 0, 0), 0, 1);
@@ -648,7 +653,7 @@ void static drawthecolors(uint8_t red, uint8_t green, uint8_t blue){
 }
 int main3(void){ // main3
   uint8_t red, green, blue;
-  PLL_Init();                           // set system clock to 80 MHz
+  PLL_Init(80);                           // set system clock to 80 MHz
   // test DrawChar() and DrawCharS()
   ST7735_InitR(INITR_REDTAB);
 

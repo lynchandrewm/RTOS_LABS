@@ -464,20 +464,24 @@ void Output_Color(uint32_t newColor);
 
 //------------ST7735_ds_InitB------------
 // Initialization for ST7735R screens (green or red tabs).
-// Input: numOfScreens 0 to 5 screens allowed  
-//        args list... number of lines per screen, in order starting with
-//                     the first screen. No less than 3 lines allowed   
+// Input: screenZeroNumLines   number of lines in screen Zero  
+//        screenOneNumLines   number of lines in screen One
+//        screenTwoNumLines number of lines in screen Two
+//        screenThreeNumLines  number of lines in screen Three
 // Output: none
-void ST7735_ds_InitB(int8_t numOfScreens, ...);
+void ST7735_ds_InitB(int8_t screenZeroNumLines, int8_t screenOneNumLines, 
+  int8_t screenTwoNumLines, int8_t screenThreeNumLines);
  
 //------------ST7735_ds_InitB------------
 // Initialization for ST7735R screens (green or red tabs).
-// Input: option       one of the enumerated options depending on tabs
-//        numOfScreens 0 to 5 screens allowed  
-//        args list... number of lines per screen, in order starting with
-//                     the first screen. No less than 3 lines allowed   
+// Input: option              one of the enumerated options depending on tabs
+//        screenZeroNumLines   number of lines in screen Zero  
+//        screenOneNumLines   number of lines in screen One
+//        screenTwoNumLines number of lines in screen Two
+//        screenThreeNumLines  number of lines in screen Three
 // Output: none
-void ST7735_ds_InitR(enum initRFlags options, int8_t numOfScreens, ...);
+void ST7735_ds_InitR(enum initRFlags options, int8_t screenZeroNumLines, 
+  int8_t screenOneNumLines, int8_t screenTwoNumLines, int8_t screenThreeNumLines);
 
 //------------ST7735_ds_DrawPixel------------
 // Color the pixel at the given coordinates with the given color.
@@ -728,21 +732,5 @@ void ST7735_ds_OutString(int8_t device, char *ptr);
 // Output: none
 void ST7735_ds_SetTextColor(int8_t device, uint16_t color);
 
-
-
-
-
-
-
-
-//ADD COMMENTS
-
-void ST7735_ds_Init(int );
-
-void static commonInit(const uint8_t*);
-
-void ST7735_ds_DrawString(int , int , char *);
-
-uint16_t length_of(char *);
 
 #endif

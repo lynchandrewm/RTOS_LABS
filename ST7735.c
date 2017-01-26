@@ -511,75 +511,70 @@ void ST7735_ds_Init(int zero_lines){
 }
 */
 
-//globals
-uint16_t static xstart[5];
-uint16_t static xstop[5];
-uint16_t static ystart[5];
-uint16_t static ystop[5];
-uint16_t static ds_StX[5];
-uint16_t static ds_StY[5];
+// static declarations
+void static ST7735_ds_commonInit(int8_t s0, int8_t s1, int8_t s2, int8_t s3);
+uint16_t length_of(char *str);
 
-void ST7735_ds_InitB(int8_t numOfScreens, ...){
+
+// globals
+// 16 rows (0 to 15) and 21 characters (0 to 20)
+// Requires (11 + size*size*6*8) bytes of transmission for each character
+uint16_t static xstart[4];  //pixels
+uint16_t static xstop[4];   //pixels
+uint16_t static ystart[4];  //pixels
+uint16_t static ystop[4];   //pixels
+uint16_t static ds_StX[4];  //character cursor
+uint16_t static ds_StY[4];  //character cursor
+
+void ST7735_ds_InitB(int8_t s0, int8_t s1, int8_t s2, int8_t s3){
   ST7735_InitB();
-  va_list arguments;
-  va_start(arguments, numOfScreens);
-  ST7735_ds_commonInit(numOfScreens, arguments);
-  va_end(argments);
+  ST7735_ds_commonInit(s0, s1, s2, s3);
 }
 
-void ST7735_ds_InitR(enum initRFags option, int8_t numOfScreens, ...){
-  ST7735_InitR(option);
-  va_list arguments;
-  va_start(arguments, numOfScreens);
-  ST7735_ds_commonInit(numOfScreens, arguments);
-  va_end(argments);
+void ST7735_ds_InitR(enum initRFlags op, int8_t s0, int8_t s1, int8_t s2,
+  int8_t s3){
+  ST7735_InitR(op);
+  ST7735_ds_commonInit(s0, s1, s2, s3);
 }
 
-void static ST7735_ds_commonInit(int8_t n, ...){
-  va_list args;
-  va_start(args, n);
-  uint8_t numLines[5];
-  uint8_t totalLines = 0;
-  for(int i = 0; i < n; i++){
-    numLines[i] = va_arg(args,uint8_t);
-    if(numLines[i]<3){ //no screens allowed less than 3 lines 
-      while(1){/*error*/}
-    }
-    totalLines += numLines[i];
-  }
+void static ST7735_ds_commonInit(int8_t s0, int8_t s1, int8_t s2, int8_t s3){
+  uint8_t numLines[4] = {s0, s1, s2, s3};
+  uint8_t totalLines = s0 + s1 + s2 + s3;
   if(totalLines>16){   //can't exceed the LCD limits
     while(1){/*error*/}
   }
-  uint16_t nextAvailable = 0;
-  for(int i = 0; i < n; i++){
+  uint8_t n = 4;
+  int16_t lastBlockEnd = -1;
+  for(uint8_t i = 0; i < n; i++){
     xstart[i] = 0;
     xstop[i] = _width;
-    ystart[i] = nextAvailable;
-    ystop[i] = nextAvailable + numLines[i];
-    nextAvailable = ystop[i] + 1;
-    ST7735_DrawFastHLine(0, (ystop[i]*10)+9, _width, ST7735_WHITE);
+    ystart[i] = lastBlockEnd + 1;
+    ystop[i] = lastBlockEnd + (numLines[i]*10) - 1;
+    lastBlockEnd = ystop[i];
+    ST7735_DrawFastHLine(0, ystop[i], _width, ST7735_WHITE);
     ds_StX[i] = 0;
     ds_StY[i] = 0;
   }
-  va_end(args);
 }
-
-void ST7735_ds_DrawString(int device, int line, char *string)
+/*
+uint32_t ST7735_ds_DrawString(int device, int line, char *string)
 {
   int x, y;
   x = 0;
   if(device == 0){
     y = line*10;
     if(y > screen0_height || x > _width) // better check here needed
-      return;
+      return 0;
   }
   else{
     y = line*10 + screen0_height;
     if(y > screen1_height || x > _width) //better check here needed
-      return;
+      return 0;
   }
-  ST7735_DrawString(x, y, string, StTextColor); 
+  return ST7735_DrawString(x, y, string, StTextColor); 
 }
+*/
+
 //THIS WAS DRAGGED UP SO I COULD USE IT 
 //-----------------------fillmessage-----------------------
 // Output a 32-bit number in unsigned decimal format
@@ -599,7 +594,7 @@ void fillmessage(uint32_t n){
   Message[Messageindex] = (n+'0'); /* n is between 0 and 9 */
   if(Messageindex<11)Messageindex++;
 }
-
+/*
 void ST7735_ds_DrawMessage(int device, int line, char *string, int32_t value){
   int x = 6*(length_of(string)+1);
   int y = 0;
@@ -637,6 +632,8 @@ uint16_t length_of(char *str){
   return i;
   
 }
+
+*/
 //void ST7735_dualScreenInit(void){
 //  ST7735_dualScreenInit(8);
 //}
