@@ -721,11 +721,10 @@ void SSR_Init(void){
 }
 
 
-void Delay1ms(uint32_t n);
 int main4(void){
   SSR_Init();
   while(1){
-    Delay1ms(10);
+    DelayWait10ms(1);
     PF2 ^= 0x04;
   }
 }
