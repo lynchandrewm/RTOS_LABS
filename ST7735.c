@@ -681,12 +681,15 @@ uint16_t static ystop[4];      //pixels
 uint16_t static ds_StX[4];     //character cursor
 uint16_t static ds_StY[4];     //character cursor
 uint16_t static ds_StColor[4]; //text color for each screen
+uint16_t static ds_numLines[4];
+uint16_t static ds_enable[4];
 // for ascii translators
 char Message[12];
 uint32_t Messageindex;
 
 // ***************Private Function Prototypes***************
 void static ST7735_ds_commonInit(int8_t s0, int8_t s1, int8_t s2, int8_t s3);
+void static ST7735_ds_screenStats();
 void static writecommand(uint8_t c);
 void static writedata(uint8_t c);
 void static Delay1ms(uint32_t n);
@@ -724,12 +727,13 @@ void ST7735_ds_InitR(enum initRFlags op, int8_t s0, int8_t s1, int8_t s2,
   ST7735_ds_commonInit(s0, s1, s2, s3);
 }
 
-//------------ST7735_ds_InitB------------
+//------------ST7735_ds_commonInit------------
 // 
 // Input: 
 // Output: 
 void static ST7735_ds_commonInit(int8_t s0, int8_t s1, int8_t s2, int8_t s3){
-  uint8_t numLines[4] = {s0, s1, s2, s3};
+  uint16_t* p = ds_numLines;
+  *p++ = s0; *p++ = s1; *p++ = s2; *p++ = s3; 
   uint8_t totalLines = s0 + s1 + s2 + s3;
   if(totalLines>16){   //can't exceed the LCD limits
     while(1){/*error*/}
@@ -737,33 +741,52 @@ void static ST7735_ds_commonInit(int8_t s0, int8_t s1, int8_t s2, int8_t s3){
   uint8_t n = 4;
   int16_t lastBlockEnd = -1;
   for(uint8_t i = 0; i < n; i++){
+    ds_enable[i] = !(ds_numLines[i]==0);
     xstart[i] = 0;
     xstop[i] = _width;
     ystart[i] = lastBlockEnd + 1;
-    ystop[i] = lastBlockEnd + (numLines[i]*10) - 1;
+    ystop[i] = lastBlockEnd + (ds_numLines[i]*10) - 1;
     lastBlockEnd = ystop[i];
     ds_StColor[i] = ST7735_YELLOW;
     ST7735_DrawFastHLine(0, ystop[i], _width, ST7735_WHITE);
     ds_StX[i] = 0;
     ds_StY[i] = 0;
   }
+  ST7735_ds_screenStats();
 }
 
+//------------ST7735_ds_screenStats------------
+// Screen: #
+// Number of lines: #
+// Input: none
+// Output: none
+void static ST7735_ds_screenStats(){ uint8_t n = 4;
+  char* screenStr = "Screen :";
+  char* linesStr = "Number of lines:";
+  for(uint8_t i = 0; i < n; i++){
+    if(ds_enable[i]){
+      ST7735_ds_Message(i,0,screenStr,i);
+      ST7735_ds_Message(i,1,linesStr,ds_numLines[i]);
+    } 
+  }
+  Delay1ms(5000);
+  for(uint8_t i =0; i < n; i++){
+    ST7735_ds_FillScreen(i, ST7735_BLACK);
+    ST7735_DrawFastHLine(0, ystop[i], _width, ST7735_WHITE);
+  }
+}
 //------------ST7735_ds_Message------------
 // I'D LOOK AT THIS, NOT SURE IT IS GOOD!!!!!!!!!!!!!!!!!!!
 // Input: 
 // Output: 
 void ST7735_ds_Message(int8_t device, int8_t line, char* string, int32_t value){
-  
   int x, y; //pixel values for start of the next string
   x = 6*(LengthOfString(string)+1);
   y = 10*line;
-  
-  if(y < (ystart[device]) || y > (ystop[device])) //is it in the right region?
+  if(line>ds_numLines[device]){ //is it in the right region?
     return;
-  
+  }
   char colon = ':';
-  
   ST7735_ds_DrawString(device, 0, y, string, ds_StColor[device]); //use the already defined dual screen string function for string
   ST7735_DrawCharS(x, y, colon, ds_StColor[device], ST7735_BLACK, 1); //draw a colon after this
   
