@@ -745,12 +745,12 @@ void static ST7735_ds_commonInit(int8_t s0, int8_t s1, int8_t s2, int8_t s3){
     xstart[i] = 0;
     xstop[i] = _width;
     ystart[i] = lastBlockEnd + 1;
-    ystop[i] = lastBlockEnd + (ds_numLines[i]*10) - 1;
+    ystop[i] = (ds_numLines[i]*10) + lastBlockEnd;
     lastBlockEnd = ystop[i];
     ds_StColor[i] = ST7735_YELLOW;
-    ST7735_DrawFastHLine(0, ystop[i], _width, ST7735_WHITE);
+    ST7735_DrawFastHLine(0, ystop[i]-1, _width, ST7735_WHITE);
     ds_StX[i] = 0;
-    ds_StY[i] = 0;
+    ds_StY[i] = ystart[i]/10;
   }
   ST7735_ds_screenStats();
 }
@@ -769,10 +769,11 @@ void static ST7735_ds_screenStats(){ uint8_t n = 4;
       ST7735_ds_Message(i,1,linesStr,ds_numLines[i]);
     } 
   }
-  Delay1ms(5000);
+  Delay1ms(20000);
   for(uint8_t i =0; i < n; i++){
     ST7735_ds_FillScreen(i, ST7735_BLACK);
-    ST7735_DrawFastHLine(0, ystop[i], _width, ST7735_WHITE);
+    ST7735_DrawFastHLine(0, ystop[i]-1, _width, ST7735_WHITE);
+    ST7735_ds_SetCursor(i, 0, 0);
   }
 }
 //------------ST7735_ds_Message------------
@@ -780,34 +781,21 @@ void static ST7735_ds_screenStats(){ uint8_t n = 4;
 // Input: 
 // Output: 
 void ST7735_ds_Message(int8_t device, int8_t line, char* string, int32_t value){
-  int x, y; //pixel values for start of the next string
-  x = 6*(LengthOfString(string)+1);
-  y = 10*line;
   if(line>ds_numLines[device]){ //is it in the right region?
     return;
   }
-  char colon = ':';
-  ST7735_ds_DrawString(device, 0, y, string, ds_StColor[device]); //use the already defined dual screen string function for string
-  ST7735_DrawCharS(x, y, colon, ds_StColor[device], ST7735_BLACK, 1); //draw a colon after this
-  
-  x+=12; //shift x two character locations
-  
+  ST7735_ds_SetCursor(device, 0,line);
+  ST7735_ds_OutString(device, string); //use the already defined dual screen string function for string
   //if value is negative, get its abs value and draw a '-' on screen
   if(value < 0){
-    char minus = '-';
-    value = ~value;
-    value = value+1;
-    ST7735_DrawCharS(x, y, minus, ds_StColor[device], ST7735_BLACK, 1);
-    x+=6;
+    ST7735_ds_OutString(device, "-");
+    value = ~value; value = value+1; //fast negate
   }
-  
-  
   //fill the 'Message' global var with string of value and display
+  Messageindex = 0;
   fillmessage(value);
-  ST7735_DrawString(x, y, Message, StTextColor);
-  //set the cursor location right after the previous number
-  ds_StY[device] = y;
-  ds_StX[device] = x+6;
+  Message[Messageindex] = 0; //terminate
+  ST7735_ds_OutString(device, Message);
 }
 
 //------------ST7735_ds_DrawPixel------------
@@ -865,9 +853,7 @@ void ST7735_ds_DrawFastHLine(int8_t device, int16_t x, int16_t y, int16_t w, uin
 // Input: 
 // Output: 
 void ST7735_ds_FillScreen(int8_t device, uint16_t color){
-  ds_StX[device] = _width;
-  ds_StY[device] = ystop[device];
-  ST7735_ds_FillRect(device, xstart[device], ystart[device], _width, (ystop[device] - ystart[device]), color);
+  ST7735_ds_FillRect(device, 0, 0, _width, (ystop[device] - ystart[device]), color);
 }
 
 
@@ -877,18 +863,15 @@ void ST7735_ds_FillScreen(int8_t device, uint16_t color){
 // Output: 
 void ST7735_ds_FillRect(int8_t device, int16_t x, int16_t y, int16_t w, int16_t h, uint16_t color){
   y = y+ystart[device];
-  if(x > _width || x < 0)
-    return;
-  if(y < (ystart[device]) || y > (ystop[device]))
-    return;
+  if(x > _width || x < 0){return;}
+  if(y < (ystart[device]) || y > (ystop[device])){return;}
   
-  if((y+h)> ystop[device])
+  if((y+h)> ystop[device]){
     h = ystop[device] - y;
-  
-  if((x+w)> _width)
+  }
+  if((x+w)> _width){
     w = _width - x;
-  ds_StX[device] = x+w;
-  ds_StY[device] = y+h;
+  }
   ST7735_FillRect(x, y, w, h, color);
 }
 
@@ -954,8 +937,12 @@ uint32_t ST7735_ds_DrawString(int8_t device, uint16_t x, uint16_t y, char *pt, i
 // 
 // Input: 
 // Output: 
-void ST7735_ds_SetCursor(int8_t device, uint32_t newX, uint32_t newY){
-  ds_StY[device] = newY;
+void ST7735_ds_SetCursor(int8_t device, uint16_t newX, uint16_t newY){uint16_t x,y;
+  if((newY*10 + ystart[device]) <= (ystop[device])){
+    ds_StY[device] = newY + (ystart[device]/10);
+  } else {
+    return;
+  }
   ds_StX[device] = newX;
 }
 
@@ -964,7 +951,9 @@ void ST7735_ds_SetCursor(int8_t device, uint32_t newX, uint32_t newY){
 // 
 // Input: 
 // Output: 
-void ST7735_ds_OutUDec(int8_t device, uint32_t n){}
+void ST7735_ds_OutUDec(int8_t device, uint32_t n){
+  
+}
 
 
 //------------ST7735_ds_InvertDisplay------------

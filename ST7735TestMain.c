@@ -501,23 +501,28 @@ const uint16_t Logo[] = {
  0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF, 0xFFFF
 };
 
-
 int main(void){
-  PLL_Init(80);
+  PLL_Init(Bus80MHz);
   uint8_t lines = 8;
-  ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
+  ST7735_ds_InitR(INITR_REDTAB, 4, 8, 0, 4);
   ST7735_ds_SetTextColor(2, ST7735_RED);
   ST7735_ds_SetTextColor(1, ST7735_GREEN);
   ST7735_ds_SetTextColor(3, ST7735_BLUE);
   
-  ST7735_ds_DrawString(1, 0, 2, "Hello World\n", ST7735_WHITE);
-  ST7735_ds_SetCursor(1, 0, 0);
-  ST7735_ds_OutString(1, "Test2");
+  ST7735_ds_OutString(1, "Hello World\n");
+  ST7735_ds_OutString(1, "Test1");
   
-  ST7735_ds_OutString(0, "Test1");
-  ST7735_ds_OutString(2, "Test3");
-  ST7735_ds_OutString(3, "Test4");
+  ST7735_ds_OutString(0, "Test0");
+  ST7735_ds_OutString(2, "Test2");
+  ST7735_ds_OutString(3, "Test3");
   
+}
+
+
+int main42(void){
+  PLL_Init(Bus80MHz);
+  uint8_t lines = 8;
+  ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
 }
 
 

@@ -264,7 +264,7 @@ uint32_t ST7735_ds_DrawString(int8_t device, uint16_t x, uint16_t y, char *pt, i
 // inputs: newX  new X-position of the cursor (0<=newX<=20)
 //         newY  new Y-position of the cursor (0<=newY<=15)
 // outputs: none
-void ST7735_ds_SetCursor(int8_t device, uint32_t newX, uint32_t newY);
+void ST7735_ds_SetCursor(int8_t device, uint16_t newX, uint16_t newY);
 
 //-----------------------ST7735_ds_OutUDec-----------------------
 // Output a 32-bit number in unsigned decimal format
