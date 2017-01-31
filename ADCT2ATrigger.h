@@ -47,4 +47,7 @@
 // channelNum must be 0-11 (inclusive) corresponding to Ain0 through Ain11
 void ADC0_InitTimer2ATriggerSeq3(uint8_t channelNum, uint32_t period);
 
+//returns voltage of adc
+int32_t ADC_GetVoltage(void);
+
 #endif

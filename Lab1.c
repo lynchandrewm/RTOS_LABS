@@ -24,10 +24,8 @@ void WaitForInterrupt(void);  // low power mode
 void OutCRLF(void);
 
 
-extern uint32_t ADCvalue;
-
-//Full lab testing
-int main0(void){
+//UART and Interpreter
+int main(void){char string[100];
   PLL_Init(Bus50MHz);       // set system clock to 50 MHz
   UART_Init();              // initialize UART
   INTERPRETER_initArray();
@@ -36,7 +34,20 @@ int main0(void){
   EnableInterrupts();
   while(1){
     UART_OutString(">");
-    
+    UART_InString(string, 99);
+    INTERPRETER_parseMessage(string);
+    OutCRLF();
+    if(interpreter_device == -1){
+      UART_OutString(interpreter_msg);
+    }
+    else{
+      //UART_OutString(interpreter_msg);
+      ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
+      ST7735_ds_OutString(interpreter_device, "                    ");
+      ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
+      ST7735_ds_OutString(interpreter_device, interpreter_msg);
+    }
+    OutCRLF();
   }
 }
 
@@ -83,21 +94,6 @@ void OutCRLF(void){
   UART_OutChar(LF);
 }
 
-//interpreter test
-int main3(void){
-
-  char* msg1 = "s1:2 -3 +";
-  char* msg2 = "s2.1:print hello_world!";
-  char* msg3 = ":print good_bye";
-  
-  INTERPRETER_initArray();
-  INTERPRETER_handleMessage(msg1);
-  printf("dev %i line %i %s\n", interpreter_device, interpreter_line, interpreter_msg);
-  INTERPRETER_handleMessage(msg2);
-  printf("dev %i line %i %s\n", interpreter_device, interpreter_line, interpreter_msg);
-  INTERPRETER_handleMessage(msg3);
-  printf("dev %i line %i %s\n", interpreter_device, interpreter_line, interpreter_msg);
-}
 
 //adc test (with display)
 int main2(void){
@@ -118,7 +114,7 @@ int main2(void){
   while(1){
     WaitForInterrupt();
     GPIO_PORTF_DATA_R ^= 0x04;             // toggle LED
-    volts = (ADCvalue*1000*3.3)/4096;
+    volts = ADC_GetVoltage();
     ST7735_ds_Message(0, 0, adcMessage, volts);
     ST7735_ds_OutString(0,"mV");
   }

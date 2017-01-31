@@ -72,7 +72,7 @@ long StartCritical (void);    // previous I bit, disable interrupts
 void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
 
-volatile uint32_t ADCvalue;
+uint32_t static ADCvalue;
 
 // There are many choices to make when using the ADC, and many
 // different combinations of settings will all do basically the
@@ -259,6 +259,10 @@ void ADC0_InitTimer2ATriggerSeq3PD3(uint32_t period){
   NVIC_PRI4_R = (NVIC_PRI4_R&0xFFFF00FF)|0x00004000; // 11)priority 2
   NVIC_EN0_R = 1<<17;           // 12) enable interrupt 17 in NVIC
 
+}
+
+int32_t ADC_GetVoltage(){
+  return (ADCvalue*1000*3.3)/4096;;
 }
 
 

@@ -1,6 +1,6 @@
 #include "string.h"
 #include "interpreter.h"
-
+#include "ADCT2ATrigger.h"
 static char strArray[ROWS][COLS];
 
 int8_t interpreter_line = 0;
@@ -22,7 +22,7 @@ void INTERPRETER_clearMsg(){
     interpreter_msg[i] = '\0';
 }
 
-void INTERPRETER_handleMessage(char* str){
+void INTERPRETER_parseMessage(char* str){
   INTERPRETER_clearMsg();
   const char* delim = " ";
   interpreter_device = 0; interpreter_line = 0;
@@ -45,7 +45,7 @@ void INTERPRETER_handleMessage(char* str){
     case 2:
       //adc
       interpreter_msg[0] = 'A';interpreter_msg[1] = 'D';interpreter_msg[2] = 'C';interpreter_msg[3] = ' ';interpreter_msg[4] = '=';interpreter_msg[5] = ' ';
-      //itoa(GET_ADC(), interpreter_msg, 10, 6);
+      itoa(ADC_GetVoltage(), interpreter_msg, 10, 6);
       break;
     case 3:
       //timer

@@ -13,7 +13,7 @@
 	Fills shared variables interpreter_line and intepreter_device
 	with information about how to output the results
 */
-void    INTERPRETER_handleMessage(char*);
+void    INTERPRETER_parseMessage(char*);
 
 /* prints internal variable strArray[][] which contains the contents of 
    the previous string command  */
