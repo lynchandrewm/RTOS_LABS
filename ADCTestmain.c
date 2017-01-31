@@ -29,12 +29,15 @@
 #include "../inc/tm4c123gh6pm.h"
 #include "ADCT2ATrigger.h"
 #include "PLL.h"
+#include "ST7735.h"
 
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
 long StartCritical (void);    // previous I bit, disable interrupts
 void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
+
+extern uint32_t ADCvalue;
 
 //debug code
 //
@@ -43,8 +46,9 @@ void WaitForInterrupt(void);  // low power mode
 // debugger and viewed with the variable watch feature.
 
 
-int main9(void){
+int main(void){
   PLL_Init(Bus80MHz);                      // 80 MHz system clock
+  ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
   SYSCTL_RCGCGPIO_R |= 0x00000020;         // activate port F
   ADC0_InitTimer2ATriggerSeq3(0, 8000000); // ADC channel 0, 10 Hz sampling
   GPIO_PORTF_DIR_R |= 0x04;                // make PF2 out (built-in LED)
@@ -55,9 +59,14 @@ int main9(void){
   GPIO_PORTF_AMSEL_R = 0;                  // disable analog functionality on PF
   GPIO_PORTF_DATA_R &= ~0x04;              // turn off LED
   EnableInterrupts();
+  char* adcMessage = "Voltage:";
+  int32_t volts;
   while(1){
     WaitForInterrupt();
     GPIO_PORTF_DATA_R ^= 0x04;             // toggle LED
+    volts = (ADCvalue*1000*3.3)/4096;
+    ST7735_ds_Message(0, 0, adcMessage, volts);
+    ST7735_ds_OutString(0,"mV");
   }
 }
 
