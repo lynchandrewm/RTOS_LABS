@@ -1,4 +1,3 @@
-#include<stdio.h>
 #include "string.h"
 #include "interpreter.h"
 
@@ -7,21 +6,10 @@ static char strArray[ROWS][COLS];
 int8_t interpreter_line = 0;
 int8_t interpreter_device = 0;
 char interpreter_msg[21];
+/* the error message when an invalid command was passed */
+const char static * errorMsg = "Invalid Command";
 
-int main(void){
 
-  char* msg1 = "s1:2 -3 +";
-  char* msg2 = "s2.1:print hello_world!";
-  char* msg3 = ":print good_bye";
-  
-  INTERPRETER_initArray();
-  INTERPRETER_handleMessage(msg1);
-  printf("dev %i line %i %s\n", interpreter_device, interpreter_line, interpreter_msg);
-  INTERPRETER_handleMessage(msg2);
-  printf("dev %i line %i %s\n", interpreter_device, interpreter_line, interpreter_msg);
-  INTERPRETER_handleMessage(msg3);
-  printf("dev %i line %i %s\n", interpreter_device, interpreter_line, interpreter_msg);
-}
 void INTERPRETER_initArray(){
   int i;
   for(i = 0; i < ROWS; i++){

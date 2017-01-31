@@ -46,7 +46,7 @@ extern uint32_t ADCvalue;
 // debugger and viewed with the variable watch feature.
 
 
-int main(void){
+int main11(void){
   PLL_Init(Bus80MHz);                      // 80 MHz system clock
   ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
   SYSCTL_RCGCGPIO_R |= 0x00000020;         // activate port F

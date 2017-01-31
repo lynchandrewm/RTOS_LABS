@@ -44,7 +44,5 @@ extern char interpreter_msg[];
 extern int8_t interpreter_line;
 /* which display the output should go to */
 extern int8_t interpreter_device;
-/* the error message when an invalid command was passed */
-const char* errorMsg = "Invalid Command";
 
 #endif

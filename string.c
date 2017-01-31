@@ -1,5 +1,4 @@
 #include "string.h"
-#include<stdio.h>
 
 //approximation of the itoa() function, based on an implementation
 //from http://www.geeksforgeeks.org/implement-itoa/
