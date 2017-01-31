@@ -425,6 +425,26 @@
               <FileType>1</FileType>
               <FilePath>.\ST7735TestMain.c</FilePath>
             </File>
+            <File>
+              <FileName>interpreter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>C:\Users\Matthew\Documents\UT Semester 2\RTOS\C Practice\string\interpreter.c</FilePath>
+            </File>
+            <File>
+              <FileName>interpreter.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>C:\Users\Matthew\Documents\UT Semester 2\RTOS\C Practice\string\interpreter.h</FilePath>
+            </File>
+            <File>
+              <FileName>string.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>C:\Users\Matthew\Documents\UT Semester 2\RTOS\C Practice\string\string.c</FilePath>
+            </File>
+            <File>
+              <FileName>string.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>C:\Users\Matthew\Documents\UT Semester 2\RTOS\C Practice\string\string.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

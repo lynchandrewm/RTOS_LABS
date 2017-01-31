@@ -5,7 +5,6 @@
 // is complete.
 // Daniel Valvano
 // Andrew Lynch
-// Matthew DeKoning
 // May 2, 2015
 // January 26, 2017
 
