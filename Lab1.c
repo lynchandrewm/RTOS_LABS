@@ -39,7 +39,7 @@ int main(void){
   ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
   DisableInterrupts();
   Clock_Init();
-  Clock_SetClock(2017,1,31,10,2,10);
+  Clock_SetClock(2017,2,1,0,4,0);
   char time_str[20];
   char date_str[30];
   EnableInterrupts();

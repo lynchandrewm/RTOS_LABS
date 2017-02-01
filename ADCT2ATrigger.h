@@ -50,4 +50,8 @@ void ADC0_InitTimer2ATriggerSeq3(uint8_t channelNum, uint32_t period);
 //returns voltage of adc
 int32_t ADC_GetVoltage(void);
 
-#endif
+void PrintVoltage(void);
+
+void ADC_RTVoltageToggle (int8_t device, int8_t line);
+
+  #endif

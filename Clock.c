@@ -23,15 +23,19 @@ uint16_t static Millisecond = 0;
 
 void Clock_GetTime(char string[12]){
   char* AMPMstr = "AM";
-  char* leadingZero = "";
+  char* leadingZeroHour = "";
+  char* leadingZeroMinute = "";
+  char* leadingZeroSecond = "";
   uint8_t hour = Hour;
   if(Hour>11){ 
     AMPMstr = "PM";
     hour -= 12;
   }
   if(hour == 0){ hour = 12; }
-  if(Minute<10){ leadingZero = "0"; }
-  sprintf(string, "%d:%s%d:%d %s", hour, leadingZero, Minute, Second, AMPMstr);
+  if(hour<10){ leadingZeroHour = "0"; }
+  if(Minute<10){ leadingZeroMinute = "0"; }
+  if(Second<10){ leadingZeroSecond = "0"; }
+  sprintf(string, "%s%d:%s%d:%s%d %s", leadingZeroHour, hour, leadingZeroMinute, Minute, leadingZeroSecond, Second, AMPMstr);
 }
 
 void NameOfMonth(char* string){
