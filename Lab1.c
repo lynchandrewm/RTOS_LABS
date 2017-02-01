@@ -39,7 +39,7 @@ int main(void){
   ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
   DisableInterrupts();
   Clock_Init();
-  Clock_SetClock(2017,2,1,0,53,0);
+  Clock_SetClock(2017,2,1,0,4,0);
   char time_str[20];
   char date_str[30];
   EnableInterrupts();
@@ -66,9 +66,25 @@ int main8(void){
   }
 }
 
-
+//interupt driven UART
 //UART and Interpreter
 int main0(void){char string[100];
+  PLL_Init(Bus50MHz);       // set system clock to 50 MHz
+  UART_Init();              // initialize UART
+  INTERPRETER_initArray();
+  ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
+  ADC0_InitTimer2ATriggerSeq3(0, 8000000); // ADC channel 0, 10 Hz sampling
+  Timer4A_Init(2000,4); //init the timer
+  EnableInterrupts();
+  UART_OutString(">");
+  while(1){
+    WaitForInterrupt();
+  }
+}
+
+
+//UART and Interpreter
+int main01(void){char string[100];
   PLL_Init(Bus50MHz);       // set system clock to 50 MHz
   UART_Init();              // initialize UART
   INTERPRETER_initArray();

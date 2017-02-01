@@ -29,6 +29,7 @@
 // U0Tx (VCP transmit) connected to PA1
 #include <stdint.h>
 #include "../inc/tm4c123gh6pm.h"
+#include "interpreter.h"
 
 #include "FIFO.h"
 #include "UART.h"
@@ -107,6 +108,7 @@ void static copyHardwareToSoftware(void){
   while(((UART0_FR_R&UART_FR_RXFE) == 0) && (RxFifo_Size() < (FIFOSIZE - 1))){
     letter = UART0_DR_R;
     RxFifo_Put(letter);
+    if(letter == CR){handleInterrupt();} //if the CR is detected, handle the string in the buffer
   }
 }
 // copy from software TX FIFO to hardware TX FIFO

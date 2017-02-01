@@ -1,6 +1,8 @@
 #ifndef _INTERPRETER_
 #define _INTERPRETER_
 
+
+void handleInterrupt(void);
 /*function to handle input string interpreter command
 	params: char* to the string
 	output: none
@@ -17,13 +19,13 @@ void    INTERPRETER_parseMessage(char*);
 
 /* prints internal variable strArray[][] which contains the contents of 
    the previous string command  */
-void    INTERPRETER_printParams();
+void    INTERPRETER_printParams(void);
 
 /* fills internal variable strArray with terminating characters */
-void    INTERPRETER_initArray();
+void    INTERPRETER_initArray(void);
 
 /* perform post-fix calculation on passed params */
-int32_t INTERPRETER_calculator();
+int32_t INTERPRETER_calculator(void);
 
 /* determine the value of intepreter_device and interpreter_line 
    while getting the first argument ready for further processing */
@@ -36,7 +38,7 @@ uint8_t INTERPRETER_handleCommand(uint8_t);
 uint8_t INTERPRETER_detectOperator(char);
 
 /*fills shared variable interpreter_msg with terminating characters*/
-void INTERPRETER_clearMsg();
+void INTERPRETER_clearMsg(void);
 
 /* string to print to UART or the LCD screen */
 extern char interpreter_msg[];
