@@ -152,3 +152,30 @@ void Clock_SetClock(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uin
   UpdateLeapYear();
 }
 
+void Clock_SetYear(uint16_t year){
+  Year = year;
+  UpdateLeapYear();
+}
+
+void Clock_SetMonth(uint8_t month){
+  Month = month;
+  UpdateDaysInMonth();
+}
+
+void Clock_SetDay(uint8_t day){
+  Day = day;
+}
+
+void Clock_SetHour(uint8_t hour){
+  Hour = hour;
+}
+
+void Clock_SetMinute(uint8_t minute){
+  Minute = minute;
+}
+
+void Clock_SetSecond(uint8_t second){
+  Second = second;
+  Millisecond = 0;
+}
+
