@@ -13,6 +13,8 @@
 #include "ADCT2ATrigger.h"
 #include "interpreter.h"
 #include "UART.h"
+#include "Timer4A.h"
+#include "Clock.h"
 #include "PLL.h"
 #include "../inc/tm4c123gh6pm.h"
 
@@ -23,14 +25,56 @@ void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
 void OutCRLF(void);
 
+void timer4TestFunction(){
+  ST7735_ds_OutString(0,"TEST");
+}
+
+void timer4TestFunction2(){
+  ST7735_ds_OutString(1,"TEST");
+}
+
+//test clock
+int main(void){
+  PLL_Init(Bus50MHz);       // set system clock to 50 MHz
+  ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
+  DisableInterrupts();
+  Clock_Init();
+  Clock_SetClock(2017,1,31,10,2,10);
+  char time_str[20];
+  char date_str[30];
+  EnableInterrupts();
+  while(1){
+    Clock_GetTime(time_str);
+    Clock_GetDate(date_str);
+    ST7735_ds_SetCursor(0,0,0);
+    ST7735_ds_OutString(0,time_str);
+    ST7735_ds_SetCursor(0,0,1);
+    ST7735_ds_OutString(0,date_str);
+  }
+}
+
+//test timer4
+int main8(void){
+  PLL_Init(Bus50MHz);       // set system clock to 50 MHz
+  ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
+  Timer4A_Init(2000,4);
+  Timer4A_AddPeriodicThread(timer4TestFunction);
+  Timer4A_AddPeriodicThread(timer4TestFunction2);
+  EnableInterrupts();
+  while(1){
+    WaitForInterrupt();
+  }
+}
+
 
 //UART and Interpreter
-int main(void){char string[100];
+int main0(void){char string[100];
   PLL_Init(Bus50MHz);       // set system clock to 50 MHz
   UART_Init();              // initialize UART
   INTERPRETER_initArray();
   ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
   ADC0_InitTimer2ATriggerSeq3(0, 8000000); // ADC channel 0, 10 Hz sampling
+  Timer4A_Init(2000,4); //init the timer
   EnableInterrupts();
   while(1){
     UART_OutString(">");

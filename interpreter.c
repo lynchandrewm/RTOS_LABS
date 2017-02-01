@@ -1,6 +1,10 @@
 #include "string.h"
 #include "interpreter.h"
 #include "ADCT2ATrigger.h"
+#include "ST7735.h"
+#include "Timer4A.h"
+#include "Clock.h"
+
 static char strArray[ROWS][COLS];
 
 int8_t interpreter_line = 0;
@@ -50,18 +54,24 @@ void INTERPRETER_parseMessage(char* str){
     case 3:
       //timer
       interpreter_msg[0] = 'T';interpreter_msg[1] = 'i';interpreter_msg[2] = 'm';interpreter_msg[3] = 'e';interpreter_msg[4] = ':';interpreter_msg[5] = ' ';
-      //itoa(GET_TIMER(), interpreter_msg, 10, 6);
+      itoa(Timer4A_ReadPeriodicTime(), interpreter_msg, 10, 6);
       break;
     case 4:
       //print string
       for(i = 0; i < LengthOfString(strArray[1]);i++){
         interpreter_msg[i] = strArray[1][i];
       }
-	  interpreter_msg[i+1] = '\0';
+      interpreter_msg[i+1] = '\0';
       break;
     case 5:
       //adjust screen
-      //ST7735_ds_InitR(INITR_REDTAB, strToInt(strArray[1]), strToInt(strArray[2]), strToInt(strArray[3]),strToInt(strArray[4]));
+      ST7735_ds_InitR(INITR_REDTAB, strToInt(strArray[1]), strToInt(strArray[2]), strToInt(strArray[3]),strToInt(strArray[4]));
+      interpreter_msg[0] = '\0';
+      break;
+    case 6:
+      //Toggle Real Time ADC
+      interpreter_msg[0] = '\0';
+      ADC_RTVoltageToggle(interpreter_device,interpreter_line);
       break;
     default:
       for(i = 0; i < LengthOfString(errorMsg); i++){
@@ -160,11 +170,17 @@ uint8_t INTERPRETER_handleCommand(uint8_t index){
       else if(strArray[0][index] == 'p' && strArray[0][index+1] == 'r' && strArray[0][index+2] == 'i' && strArray[0][index+3] == 'n' && strArray[0][index+4] == 't'){
         return 4;
       }
+      else if(strArray[0][index] == 'a' && strArray[0][index+1] == 'd' && strArray[0][index+2] == 'c' && strArray[0][index+3] == 'o' && strArray[0][index+4] == 'n'){
+        return 6;
+      }
       return 0xff;
       break;
     case 6:
       if(strArray[0][index] == 's' && strArray[0][index+1] == 'c' && strArray[0][index+2] == 'r' && strArray[0][index+3] == 'e' && strArray[0][index+4] == 'e'&& strArray[0][index+5] == 'n'){
         return 5;
+      }
+      if(strArray[0][index] == 'a' && strArray[0][index+1] == 'd' && strArray[0][index+2] == 'c' && strArray[0][index+3] == 'o' && strArray[0][index+4] == 'f'&& strArray[0][index+5] == 'f'){
+        return 6;
       }
       return 0xff;
       break;

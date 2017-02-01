@@ -769,7 +769,7 @@ void static ST7735_ds_screenStats(){ uint8_t n = 4;
       ST7735_ds_Message(i,1,linesStr,ds_numLines[i]);
     } 
   }
-  Delay1ms(20000);
+  Delay1ms(1000);
   for(uint8_t i =0; i < n; i++){
     ST7735_ds_FillScreen(i, ST7735_BLACK);
     ST7735_DrawFastHLine(0, ystop[i]-1, _width, ST7735_WHITE);

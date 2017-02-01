@@ -25,7 +25,10 @@
  */
 #include <stdint.h>
 #include "ADCT2ATrigger.h"
+#include "Timer4A.h"
+#include "ST7735.h"
 #include "../inc/tm4c123gh6pm.h"
+
 #define NVIC_EN0_INT17          0x00020000  // Interrupt 17 enable
 
 #define TIMER_CFG_16_BIT        0x00000004  // 16-bit timer configuration,
@@ -73,6 +76,27 @@ void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
 
 uint32_t static ADCvalue;
+
+int8_t static RTPrintEn[4][16];
+
+void PrintVoltage(void){char* msg = "Voltage: ";
+  for(int i = 0; i < 4; i++){
+    for(int k = 0; k < 16; k++){
+      if(RTPrintEn[i][k]){
+        ST7735_ds_Message(i,k,msg,ADC_GetVoltage());
+        ST7735_ds_OutString(i,"mV");
+      }
+    }
+  }
+}
+
+void ADC_RTVoltageToggle (int8_t device, int8_t line){
+  RTPrintEn[device][line] ^= 0xFF;
+}
+
+int32_t ADC_GetVoltage(){
+  return (ADCvalue*1000*3.3)/4096;;
+}
 
 // There are many choices to make when using the ADC, and many
 // different combinations of settings will all do basically the
@@ -227,7 +251,6 @@ void ADC0_InitTimer2ATriggerSeq3(uint8_t channelNum, uint32_t period){
   ADC0_ACTSS_R |= 0x08;          // enable sample sequencer 3
   NVIC_PRI4_R = (NVIC_PRI4_R&0xFFFF00FF)|0x00004000; //priority 2
   NVIC_EN0_R = 1<<17;              // enable interrupt 17 in NVIC
-
 }
 void ADC0_InitTimer2ATriggerSeq3PD3(uint32_t period){
   volatile uint32_t delay;
@@ -261,12 +284,10 @@ void ADC0_InitTimer2ATriggerSeq3PD3(uint32_t period){
 
 }
 
-int32_t ADC_GetVoltage(){
-  return (ADCvalue*1000*3.3)/4096;;
-}
 
 
 void ADC0Seq3_Handler(void){
   ADC0_ISC_R = 0x08;          // acknowledge ADC sequence 3 completion
   ADCvalue = ADC0_SSFIFO3_R;  // 12-bit result
+  PrintVoltage();
 }
