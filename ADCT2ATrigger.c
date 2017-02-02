@@ -95,7 +95,7 @@ void ADC_RTVoltageToggle (int8_t device, int8_t line){
 }
 
 int32_t ADC_GetVoltage(){
-  return (ADCvalue*1000*3.3)/4096;;
+  return (ADCvalue*100*33)/4096;;
 }
 
 // There are many choices to make when using the ADC, and many
