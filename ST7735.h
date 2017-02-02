@@ -138,13 +138,7 @@ void ST7735_ds_InitR(enum initRFlags options, int8_t screenZeroNumLines,
 // Input: 
 // Output: 
 void ST7735_ds_Message(int8_t device, int8_t line, char* string, int32_t value);
-
-//------------ST7735_ds_Message3Dec------------
-//
-// Input: 
-// Output: 
-void ST7735_ds_Message2Dec(int8_t device, int8_t line, char* string, int32_t value);
-
+  
 //------------ST7735_ds_DrawPixel------------
 // Color the pixel at the given coordinates with the given color.
 // Requires 13 bytes of transmission

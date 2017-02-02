@@ -14,25 +14,25 @@ char interpreter_msg[21];
 /* the error message when an invalid command was passed */
 const char static * errorMsg = "Invalid Command";
 
-void INTERPRETER_handler(void){
-  UART_OutString(">");
-  char string[100];
-  UART_InString(string, 99);
-  INTERPRETER_parseMessage(string);
-  OutCRLF();
-  if(interpreter_device == -1){
-    UART_OutString(interpreter_msg);
-  }
-  else{
-    //UART_OutString(interpreter_msg);
-    ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
-    ST7735_ds_OutString(interpreter_device, "                    ");
-    ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
-    ST7735_ds_OutString(interpreter_device, interpreter_msg);
-  }
-  OutCRLF();
+//Should be called when the UART driver grabs a CR from the incoming hardware FIFO
+void handleInterrupt(){
+    char string[100];
+    UART_InString(string, 99);
+    INTERPRETER_parseMessage(string);
+    OutCRLF();
+    if(interpreter_device == -1){
+      UART_OutString(interpreter_msg);
+    }
+    else{
+      //UART_OutString(interpreter_msg);
+      ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
+      ST7735_ds_OutString(interpreter_device, "                    ");
+      ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
+      ST7735_ds_OutString(interpreter_device, interpreter_msg);
+    }
+    OutCRLF();
+    UART_OutString(">");
 }
-
 void INTERPRETER_initArray(){
   int i;
   for(i = 0; i < ROWS; i++){
@@ -91,6 +91,30 @@ void INTERPRETER_parseMessage(char* str){
       //Toggle Real Time ADC
       interpreter_msg[0] = '\0';
       ADC_RTVoltageToggle(interpreter_device,interpreter_line);
+      break;
+    case 7:
+      //print time
+      Clock_GetTime(interpreter_msg);
+      break;
+    case 8:
+      //set date
+      Clock_SetDay(strToInt(strArray[1]));
+      Clock_SetMonth(strToInt(strArray[2]));
+      Clock_SetYear(strToInt(strArray[3]));
+      interpreter_msg[0] = 'D'; interpreter_msg[1] = 'a';interpreter_msg[2] = 't';interpreter_msg[3] = 'e';interpreter_msg[4] = ' ';interpreter_msg[5] = 's';interpreter_msg[6] = 'e';interpreter_msg[7] = 't';
+      interpreter_msg[8] = '\0'; 
+      break;
+    case 9:
+      //set time
+      Clock_SetHour(strToInt(strArray[1]));
+      Clock_SetMinute(strToInt(strArray[2]));
+      Clock_SetSecond(strToInt(strArray[3]));
+      interpreter_msg[0] = 'T'; interpreter_msg[1] = 'i';interpreter_msg[2] = 'm';interpreter_msg[3] = 'e';interpreter_msg[4] = ' ';interpreter_msg[5] = 's';interpreter_msg[6] = 'e';interpreter_msg[7] = 't';
+      interpreter_msg[8] = '\0'; 
+      break;
+    case 10:
+      //print date
+      Clock_GetDate(interpreter_msg);
       break;
     default:
       for(i = 0; i < LengthOfString(errorMsg); i++){
@@ -182,11 +206,17 @@ uint8_t INTERPRETER_handleCommand(uint8_t index){
       }
       return 0xff;
       break;
-    case 5:
-      if(strArray[0][index] == 't' && strArray[0][index+1] == 'i' && strArray[0][index+2] == 'm' && strArray[0][index+3] == 'e' && strArray[0][index+4] == 'r'){
-        return 3;
+    case 4:
+      if(strArray[0][index] == 'd' && strArray[0][index+1] == 'a' && strArray[0][index+2] == 't' && strArray[0][index+3] == 'e'){
+        return 10;
       }
-      else if(strArray[0][index] == 'p' && strArray[0][index+1] == 'r' && strArray[0][index+2] == 'i' && strArray[0][index+3] == 'n' && strArray[0][index+4] == 't'){
+      else if(strArray[0][index] == 't' && strArray[0][index+1] == 'i' && strArray[0][index+2] == 'm' && strArray[0][index+3] == 'e'){
+        return 7;
+      }
+      return 0xff;
+      break;
+    case 5:
+      if(strArray[0][index] == 'p' && strArray[0][index+1] == 'r' && strArray[0][index+2] == 'i' && strArray[0][index+3] == 'n' && strArray[0][index+4] == 't'){
         return 4;
       }
       else if(strArray[0][index] == 'a' && strArray[0][index+1] == 'd' && strArray[0][index+2] == 'c' && strArray[0][index+3] == 'o' && strArray[0][index+4] == 'n'){
@@ -200,6 +230,18 @@ uint8_t INTERPRETER_handleCommand(uint8_t index){
       }
       if(strArray[0][index] == 'a' && strArray[0][index+1] == 'd' && strArray[0][index+2] == 'c' && strArray[0][index+3] == 'o' && strArray[0][index+4] == 'f'&& strArray[0][index+5] == 'f'){
         return 6;
+      }
+      return 0xff;
+      break;
+    case 7:
+      if(strArray[0][index] == 's' && strArray[0][index+1] == 'e' && strArray[0][index+2] == 't' && strArray[0][index+3] == 'd' && strArray[0][index+4] == 'a'&& strArray[0][index+5] == 't' && strArray[0][index+6] == 'e'){
+        return 8;
+      }
+      else if(strArray[0][index] == 's' && strArray[0][index+1] == 'e' && strArray[0][index+2] == 't' && strArray[0][index+3] == 't' && strArray[0][index+4] == 'i'&& strArray[0][index+5] == 'm' && strArray[0][index+6] == 'e'){
+        return 9;
+      }
+      else if(strArray[0][index] == 'r' && strArray[0][index+1] == 'u' && strArray[0][index+2] == 'n' && strArray[0][index+3] == 't' && strArray[0][index+4] == 'i'&& strArray[0][index+5] == 'm' && strArray[0][index+6] == 'e'){
+        return 3;
       }
       return 0xff;
       break;

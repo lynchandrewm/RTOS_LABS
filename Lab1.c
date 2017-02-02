@@ -34,7 +34,7 @@ void timer4TestFunction2(){
 }
 
 //test clock
-int main9(void){
+int main(void){
   PLL_Init(Bus50MHz);       // set system clock to 50 MHz
   ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
   DisableInterrupts();
@@ -68,15 +68,15 @@ int main8(void){
 
 //interupt driven UART
 //UART and Interpreter
-int main(void){char string[100];
+int main0(void){char string[100];
   PLL_Init(Bus50MHz);       // set system clock to 50 MHz
   UART_Init();              // initialize UART
   INTERPRETER_initArray();
   ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
   ADC0_InitTimer2ATriggerSeq3(0, 8000000); // ADC channel 0, 10 Hz sampling
   Timer4A_Init(2000,4); //init the timer
-  Timer4A_AddPeriodicThread(INTERPRETER_handler);
   EnableInterrupts();
+  UART_OutString(">");
   while(1){
     WaitForInterrupt();
   }

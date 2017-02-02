@@ -42,7 +42,6 @@ void static (*PeriodicTasks[100])(void);   // user function
 static int8_t Index = 0;
 static int32_t Time = 0;
 
-
 // ***************** TIMER4A_Init ****************
 // Activate TIMER4 interrupts to run user task periodically
 // Inputs:  task is a pointer to a user function
@@ -58,7 +57,7 @@ void Timer4A_Init(uint32_t period, uint8_t priority){long sr;
   TIMER4_TAPR_R = 0;            // 5) bus clock resolution
   TIMER4_ICR_R = TIMER_ICR_TATOCINT;    // 6) clear TIMER4A timeout flag
   TIMER4_IMR_R = TIMER_IMR_TATOIM;    // 7) arm timeout interrupt
-  NVIC_PRI17_R = (NVIC_PRI17_R&0xFF00FFFF)|(priority<<21); // 8) priority 4
+  NVIC_PRI21_R = (NVIC_PRI21_R&0xFF00FFFF)|(priority<<21); // 8) priority 4
 // interrupts enabled in the main program after all devices initialized
 // vector number 35, interrupt number 19
   NVIC_EN2_R |= 1<<(70-64);           // 9) enable IRQ 66 in NVIC
@@ -87,6 +86,7 @@ void Timer4A_Handler(void){
   }
   Time++;
 }
+
 
 void Timer4A_ClearPeriodicTime(void){
   Time = 0;

@@ -2,7 +2,7 @@
 #define _INTERPRETER_
 
 
-void INTERPRETER_handler(void);
+void handleInterrupt(void);
 /*function to handle input string interpreter command
 	params: char* to the string
 	output: none
