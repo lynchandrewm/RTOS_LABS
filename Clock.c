@@ -9,8 +9,9 @@
 #include "Timer5A.h"
 #include "../inc/tm4c123gh6pm.h"
 
-void UpdateTime(void);
+void UpdateClock(void);
 
+/*
 uint16_t static Year = 0;
 uint8_t static LeapYear = 0;
 uint8_t static Month = 0;
@@ -20,26 +21,130 @@ uint8_t static Hour = 0;
 uint8_t static Minute = 0;
 uint8_t static Second = 0;
 uint16_t static Millisecond = 0;
+*/
 
-void Clock_GetTime(char string[21]){
+#define MILLISECOND    0x000003FF
+#define SECOND         0x0001F800
+#define MINUTE         0x01F80000
+#define HOUR           0xF8000000
+#define DAY            0x0000001F
+#define DAYS_PER_MONTH 0x000007C0
+#define MONTH          0x0000F000
+#define YEAR           0x3FFE0000
+#define LEAPYEAR_EN    0x80000000
+
+
+//milliseconds            bits 0-9
+//seconds                 bits 11-16
+//minutes                 bits 19-24
+//hours                   bits 27-31
+uint32_t static Time = 0x00000000;
+
+//day                     bits 0-4
+//days in current month   bits 6-10
+//month                   bits 12-15
+//year                    bits 17-29
+//leap year enable        bit  31
+uint32_t static Date = 0x00000000;
+
+void static FullChangeClock(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond);
+
+uint16_t static ExtractMillisecond(uint32_t localTime){
+  return (localTime&MILLISECOND);
+}
+
+uint8_t static ExtractSecond(uint32_t localTime){
+  return (localTime&SECOND)>>11;
+}
+
+uint8_t static ExtractMinute(uint32_t localTime){
+  return (localTime&MINUTE)>>19;
+}
+
+uint8_t static ExtractHour(uint32_t localTime){
+  return (localTime&HOUR)>>27;
+}
+
+uint8_t static ExtractDay(uint32_t localDate){
+  return (localDate&DAY);
+}
+
+uint8_t static ExtractDaysInCurrentMonth(uint32_t localDate){
+  return (localDate&DAYS_PER_MONTH)>>6;
+}
+
+uint8_t static ExtractMonth(uint32_t localDate){
+  return (localDate&MONTH)>>12;
+}
+
+uint16_t static ExtractYear(uint32_t localDate){
+  return (localDate&YEAR)>>17;
+}
+
+uint8_t static ExtractLeapYearEnable(uint32_t localDate){
+  return (localDate&LEAPYEAR_EN)>>31;
+}
+
+
+
+uint32_t static EncodeMillisecond(uint16_t num, uint32_t localTime){ num &= 0x3FF;
+  return (localTime&(~MILLISECOND))|(num);
+}
+
+uint32_t static EncodeSecond(uint8_t num, uint32_t localTime){ num &= 0x3F;
+  return (localTime&(~SECOND))|(num<<11);
+}
+
+uint32_t static EncodeMinute(uint8_t num, uint32_t localTime){ num &= 0x3F;
+  return (localTime&(~MINUTE))|(num<<19);
+}
+
+uint32_t static EncodeHour(uint8_t num, uint32_t localTime){ num &= 0x1F;
+  return (localTime&(~HOUR))|(num<<27);
+}
+
+uint32_t static EncodeDay(uint8_t num, uint32_t localDate){ num &= 0x1F;
+  return (localDate&(~DAY))|(num);
+}
+
+uint32_t static EncodeDaysInCurrentMonth(uint8_t num, uint32_t localDate){ num &= 0x1F;
+  return (localDate&(~DAYS_PER_MONTH))|(num<<6);
+}
+
+uint32_t static EncodeMonth(uint8_t num, uint32_t localDate){ num &= 0xF;
+  return (localDate&(~MONTH))|(num<<12);
+}
+
+uint32_t static EncodeYear(uint16_t num, uint32_t localDate){ num &= 0x1FFF;
+  return (localDate&(~YEAR))|(num<<17);
+}
+
+uint32_t static EncodeLeapYearEnable(uint8_t num, uint32_t localDate){ num &= 0x1;
+  return (localDate&(~LEAPYEAR_EN))|(num<<31);
+}
+
+void Clock_GetTime(char string[12]){uint32_t localTime = Time;
+  uint8_t second, minute, hour;
+  second = ExtractSecond(localTime);
+  minute = ExtractMinute(localTime);
+  hour   = ExtractHour(localTime);
   char* AMPMstr = "AM";
   char* leadingZeroHour = "";
   char* leadingZeroMinute = "";
   char* leadingZeroSecond = "";
-  uint8_t hour = Hour;
-  if(Hour>11){ 
+  if(hour>11){ 
     AMPMstr = "PM";
     hour -= 12;
   }
   if(hour == 0){ hour = 12; }
   if(hour<10){ leadingZeroHour = "0"; }
-  if(Minute<10){ leadingZeroMinute = "0"; }
-  if(Second<10){ leadingZeroSecond = "0"; }
-  sprintf(string, "%s%d:%s%d:%s%d %s", leadingZeroHour, hour, leadingZeroMinute, Minute, leadingZeroSecond, Second, AMPMstr);
+  if(minute<10){ leadingZeroMinute = "0"; }
+  if(second<10){ leadingZeroSecond = "0"; }
+  sprintf(string, "%s%d:%s%d:%s%d %s", leadingZeroHour, hour, leadingZeroMinute, minute, leadingZeroSecond, second, AMPMstr);
 }
 
-void NameOfMonth(char* string){
-  switch(Month){
+void NameOfMonth(char* string, uint8_t month){
+  switch(month){
     case 1: 
       sprintf(string, "January");
       break;
@@ -79,70 +184,87 @@ void NameOfMonth(char* string){
   }
 }
 
-void Clock_GetDate(char string[21]){
+void Clock_GetDate(char string[19]){uint32_t localDate = Date;
+  uint8_t day, month; uint16_t year;
+  day   = ExtractDay(localDate);
+  month = ExtractMonth(localDate);
+  year  = ExtractYear(localDate);
   char monthName[10];
-  NameOfMonth(monthName);
-  sprintf(string, "%s %d, %d", monthName, Day, Year); 
+  NameOfMonth(monthName, month);
+  sprintf(string, "%s %d, %d", monthName, day, year); 
 }  
 
 
 
 void Timer5A_Handler(void){
   TIMER5_ICR_R = TIMER_ICR_TATOCINT;// acknowledge TIMER4B timeout
-  Millisecond++;
-  UpdateTime();
+  UpdateClock();
 }
 
-void UpdateDaysInMonth(void){
-  if(LeapYear&&(Month==2)){
-    DaysInMonth = 29;
-    return;
+uint8_t UpdateDaysInMonth(uint8_t month, uint8_t leapyearEn){
+  if(leapyearEn&&(month==2)){
+    return 29;
   }
-  DaysInMonth = 28 + (Month + Month/8) % 2 + 2 % Month + 2 * 1/Month;
+  return 28 + (month + month/8) % 2 + 2 % month + 2 * 1/month;
 }
 
-void UpdateLeapYear(void){
-  if(!(Year%4)){
-    LeapYear = 0;
-    return;
+uint8_t UpdateLeapYear(uint16_t year){
+  if(year%4){ //if not divisible by 4, leapyear
+    return 0;
   }
-  if(!(Year%100)){
-    LeapYear = 1;
-    return;
+  if(year%100){ //else if not divisible by 100, not leapyear 
+    return 1;
   }
-  if(!(Year%400)){
-    LeapYear = 0;
-    return;
+  if(year%400){ //else if not divisible by 400, leapyear
+    return 0;
   }
+  return 1; //if divisible by 400, leapyear
 }
 
-void UpdateTime(void){
-  if(Millisecond == 1000){
-    Second++; 
-    Millisecond = 0;
+void UpdateClock(void){ uint32_t localTime, localDate;
+  uint16_t millisecond, year; 
+  uint8_t second, minute, hour, day, daysInCurrentMonth, month, leapyearEn;
+  localTime          = Time; localDate = Date;
+  millisecond        = ExtractMillisecond(localTime);
+  //debug
+  if(millisecond>510){
+    //important
   }
-  if(Second == 60){
-    Minute++;
-    Second = 0;
+  //debug
+  second             = ExtractSecond(localTime);
+  minute             = ExtractMinute(localTime);
+  hour               = ExtractHour(localTime);
+  day                = ExtractDay(localDate);
+  daysInCurrentMonth = ExtractDaysInCurrentMonth(localDate);
+  month              = ExtractMonth(localDate);
+  year               = ExtractYear(localDate);
+  leapyearEn         = ExtractLeapYearEnable(localDate);
+  millisecond++;
+  if(millisecond == 1000){
+    second++; 
+    millisecond = 0;
   }
-  if(Minute == 60){
-    Hour++;
-    Minute = 0;
+  if(second == 60){
+    minute++;
+    second = 0;
   }
-  if(Hour == 24){
-    Day++;
-    Hour = 0;
+  if(minute == 60){
+    hour++;
+    minute = 0;
   }
-  if(Day > DaysInMonth){
-    Month++;
-    UpdateDaysInMonth();
-    Day = 1;
+  if(hour == 24){
+    day++;
+    hour = 0;
   }
-  if(Month > 12){
-    Year++;
-    UpdateLeapYear();
-    Month = 1;
+  if(day > daysInCurrentMonth){
+    month++;
+    day = 1;
   }
+  if(month > 12){
+    year++;
+    month = 1;
+  }
+  FullChangeClock(year, month, day, hour, minute, second, millisecond);
 }
 
 void Clock_Init(void){
@@ -150,36 +272,108 @@ void Clock_Init(void){
 }
 
 void Clock_SetClock(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second){
-  Year = year; Month = month; Day = day; Hour = hour; Minute = minute; Second = second; 
-  Millisecond = 0;
-  UpdateDaysInMonth();
-  UpdateLeapYear();
+  FullChangeClock(year, month, day, hour, minute, second, 0);
 }
 
-void Clock_SetYear(uint16_t year){
-  Year = year;
-  UpdateLeapYear();
+void static FullChangeClock(uint16_t year, uint8_t month, uint8_t day, uint8_t hour, uint8_t minute, uint8_t second, uint16_t millisecond){
+  uint32_t localTime, localDate = 0x0;
+  uint8_t daysInCurrentMonth, leapyearEn;
+  leapyearEn = UpdateLeapYear(year);
+  daysInCurrentMonth = UpdateDaysInMonth(month, leapyearEn);
+  
+  localTime = EncodeMillisecond(millisecond, localTime);
+  localTime = EncodeSecond(second, localTime);
+  localTime = EncodeMinute(minute, localTime);
+  localTime = EncodeHour(hour, localTime);
+  localDate = EncodeDay(day, localDate);
+  localDate = EncodeDaysInCurrentMonth(daysInCurrentMonth, localDate);
+  localDate = EncodeMonth(month, localDate);
+  localDate = EncodeYear(year, localDate);
+  localDate = EncodeLeapYearEnable(leapyearEn, localDate);
+  Time = localTime; Date = localDate; //atomic, not critical
 }
 
-void Clock_SetMonth(uint8_t month){
-  Month = month;
-  UpdateDaysInMonth();
+void Clock_SetYear(uint16_t year){uint32_t localTime, localDate;
+  uint16_t millisecond; 
+  uint8_t second, minute, hour, day, month;
+  localTime          = Time; localDate = Date;
+  millisecond        = ExtractMillisecond(localTime);
+  second             = ExtractSecond(localTime);
+  minute             = ExtractMinute(localTime);
+  hour               = ExtractHour(localTime);
+  day                = ExtractDay(localDate);
+  month              = ExtractMonth(localDate);
+  
+  FullChangeClock(year, month, day, hour, minute, second, millisecond);
 }
 
-void Clock_SetDay(uint8_t day){
-  Day = day;
+void Clock_SetMonth(uint8_t month){uint32_t localTime, localDate;
+  uint16_t millisecond, year; 
+  uint8_t second, minute, hour, day;
+  localTime          = Time; localDate = Date;
+  millisecond        = ExtractMillisecond(localTime);
+  second             = ExtractSecond(localTime);
+  minute             = ExtractMinute(localTime);
+  hour               = ExtractHour(localTime);
+  day                = ExtractDay(localDate);
+  year               = ExtractYear(localDate);
+  
+  FullChangeClock(year, month, day, hour, minute, second, millisecond);
 }
 
-void Clock_SetHour(uint8_t hour){
-  Hour = hour;
+void Clock_SetDay(uint8_t day){uint32_t localTime, localDate;
+  uint16_t millisecond, year; 
+  uint8_t second, minute, hour, month;
+  localTime          = Time; localDate = Date;
+  millisecond        = ExtractMillisecond(localTime);
+  second             = ExtractSecond(localTime);
+  minute             = ExtractMinute(localTime);
+  hour               = ExtractHour(localTime);
+  month              = ExtractMonth(localDate);
+  year               = ExtractYear(localDate);
+  
+  FullChangeClock(year, month, day, hour, minute, second, millisecond);
 }
 
-void Clock_SetMinute(uint8_t minute){
-  Minute = minute;
+void Clock_SetHour(uint8_t hour){uint32_t localTime, localDate;
+  uint16_t millisecond, year; 
+  uint8_t second, minute, day, month;
+  localTime          = Time; localDate = Date;
+  millisecond        = ExtractMillisecond(localTime);
+  second             = ExtractSecond(localTime);
+  minute             = ExtractMinute(localTime);
+  day                = ExtractDay(localDate);
+  month              = ExtractMonth(localDate);
+  year               = ExtractYear(localDate);
+  
+  FullChangeClock(year, month, day, hour, minute, second, millisecond);
 }
 
-void Clock_SetSecond(uint8_t second){
-  Second = second;
-  Millisecond = 0;
+void Clock_SetMinute(uint8_t minute){uint32_t localTime, localDate;
+  uint16_t millisecond, year; 
+  uint8_t second, hour, day, month;
+  localTime          = Time; localDate = Date;
+  millisecond        = ExtractMillisecond(localTime);
+  second             = ExtractSecond(localTime);
+  hour               = ExtractHour(localTime);
+  day                = ExtractDay(localDate);
+  month              = ExtractMonth(localDate);
+  year               = ExtractYear(localDate);
+  
+  FullChangeClock(year, month, day, hour, minute, second, millisecond);
+}
+
+void Clock_SetSecond(uint8_t second){uint32_t localTime, localDate;
+  uint16_t millisecond, year; 
+  uint8_t minute, hour, day, month;
+  localTime          = Time; localDate = Date;
+  millisecond        = ExtractMillisecond(localTime);
+  minute             = ExtractMinute(localTime);
+  hour               = ExtractHour(localTime);
+  day                = ExtractDay(localDate);
+  month              = ExtractMonth(localDate);
+  year               = ExtractYear(localDate);
+  
+  FullChangeClock(year, month, day, hour, minute, second, millisecond);
 }
 

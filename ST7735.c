@@ -777,7 +777,7 @@ void static ST7735_ds_screenStats(){ uint8_t n = 4;
   }
 }
 //------------ST7735_ds_Message------------
-// I'D LOOK AT THIS, NOT SURE IT IS GOOD!!!!!!!!!!!!!!!!!!!
+// 
 // Input: 
 // Output: 
 void ST7735_ds_Message(int8_t device, int8_t line, char* string, int32_t value){
@@ -794,6 +794,40 @@ void ST7735_ds_Message(int8_t device, int8_t line, char* string, int32_t value){
   //fill the 'Message' global var with string of value and display
   Messageindex = 0;
   fillmessage(value);
+  Message[Messageindex] = 0; //terminate
+  ST7735_ds_OutString(device, Message);
+}
+
+//------------ST7735_ds_Message3Dec------------
+// 
+// Input: 
+// Output: 
+void ST7735_ds_Message2Dec(int8_t device, int8_t line, char* string, int32_t value){
+  if(line>ds_numLines[device]){ //is it in the right region?
+    return;
+  }
+  ST7735_ds_SetCursor(device, 0,line);
+  ST7735_ds_OutString(device, string); //use the already defined dual screen string function for string
+  //if value is negative, get its abs value and draw a '-' on screen
+  if(value < 0){
+    ST7735_ds_OutString(device, "-");
+    value = ~value; value = value+1; //fast negate
+  }
+  //fill the 'Message' global var with string of value and display
+  Messageindex = 0;
+  fillmessage(value);
+  while(Messageindex<3){
+    for(int i = 0; i < Messageindex; i++){
+      Message[Messageindex-i] = Message[Messageindex-1-i];
+    }
+    Message[0] = '0';
+    Messageindex += 1;
+  }
+  for(int i = 0; i < 3; i++){
+    Message[Messageindex-i] = Message[Messageindex-1-i];
+  }
+  Messageindex += 1;
+  Message[Messageindex-3] = '.';
   Message[Messageindex] = 0; //terminate
   ST7735_ds_OutString(device, Message);
 }

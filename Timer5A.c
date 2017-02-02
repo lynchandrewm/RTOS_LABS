@@ -55,7 +55,7 @@ void Timer5A_Init(uint32_t period){long sr;
   TIMER5_TAPR_R = 0;            // 5) bus clock resolution
   TIMER5_ICR_R = TIMER_ICR_TATOCINT;    // 6) clear TIMER5A timeout flag
   TIMER5_IMR_R = TIMER_IMR_TATOIM;    // 7) arm timeout interrupt
-  NVIC_PRI23_R = (NVIC_PRI23_R&0xFFFFFF00)|(0xE0); // 8) priority 7
+  NVIC_PRI23_R = (NVIC_PRI23_R&0xFFFFFF00)|(0xC0); // 8) priority 3
 // interrupts enabled in the main program after all devices initialized
 // vector number 35, interrupt number 19
   NVIC_EN2_R |= 1<<(92-64);           // 9) enable IRQ 66 in NVIC

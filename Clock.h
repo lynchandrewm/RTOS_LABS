@@ -4,9 +4,9 @@
 // Andrew Lynch
 // January 31, 2017
 
-void Clock_GetTime(char string[21]);
+void Clock_GetTime(char string[12]);
 
-void Clock_GetDate(char string[21]);
+void Clock_GetDate(char string[19]);
 
 void Clock_Init(void);
 

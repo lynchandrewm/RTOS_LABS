@@ -14,25 +14,25 @@ char interpreter_msg[21];
 /* the error message when an invalid command was passed */
 const char static * errorMsg = "Invalid Command";
 
-//Should be called when the UART driver grabs a CR from the incoming hardware FIFO
-void handleInterrupt(){
-    char string[100];
-    UART_InString(string, 99);
-    INTERPRETER_parseMessage(string);
-    OutCRLF();
-    if(interpreter_device == -1){
-      UART_OutString(interpreter_msg);
-    }
-    else{
-      //UART_OutString(interpreter_msg);
-      ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
-      ST7735_ds_OutString(interpreter_device, "                    ");
-      ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
-      ST7735_ds_OutString(interpreter_device, interpreter_msg);
-    }
-    OutCRLF();
-    UART_OutString(">");
+void INTERPRETER_handler(void){
+  UART_OutString(">");
+  char string[100];
+  UART_InString(string, 99);
+  INTERPRETER_parseMessage(string);
+  OutCRLF();
+  if(interpreter_device == -1){
+    UART_OutString(interpreter_msg);
+  }
+  else{
+    //UART_OutString(interpreter_msg);
+    ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
+    ST7735_ds_OutString(interpreter_device, "                    ");
+    ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
+    ST7735_ds_OutString(interpreter_device, interpreter_msg);
+  }
+  OutCRLF();
 }
+
 void INTERPRETER_initArray(){
   int i;
   for(i = 0; i < ROWS; i++){
