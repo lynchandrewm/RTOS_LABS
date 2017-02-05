@@ -27,6 +27,7 @@
 #include "ADCT2ATrigger.h"
 #include "Timer4A.h"
 #include "ST7735.h"
+#include "OS.h"
 #include "../inc/tm4c123gh6pm.h"
 
 #define NVIC_EN0_INT17          0x00020000  // Interrupt 17 enable
@@ -68,7 +69,6 @@
                                             // Gating Control
 #define SYSCTL_RCGCGPIO_R1      0x00000002  // GPIO Port B Run Mode Clock
                                             // Gating Control
-
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
 long StartCritical (void);    // previous I bit, disable interrupts
@@ -77,25 +77,32 @@ void WaitForInterrupt(void);  // low power mode
 
 uint32_t static ADCvalue;
 
-int8_t static RTPrintEn[4][16];
+int8_t static RTPrintVoltageEn[4][16];
 
 void PrintVoltage(void){char* msg = "Voltage: ";
   for(int i = 0; i < 4; i++){
     for(int k = 0; k < 16; k++){
-      if(RTPrintEn[i][k]){
-        ST7735_ds_Message(i,k,msg,ADC_GetVoltage());
-        ST7735_ds_OutString(i,"mV");
+      if(RTPrintVoltageEn[i][k]){
+        ST7735_ds_SetCursor(i, 0, k);
+        ST7735_ds_Message2Dec(i,k,msg,ADC_GetVoltage());
+        ST7735_ds_OutString(i,"V");
       }
     }
   }
 }
 
 void ADC_RTVoltageToggle (int8_t device, int8_t line){
-  RTPrintEn[device][line] ^= 0xFF;
+  RTPrintVoltageEn[device][line] ^= 0xFF;
 }
 
-int32_t ADC_GetVoltage(){
-  return (ADCvalue*1000*3.3)/4096;;
+int32_t ADC_GetVoltage(){int32_t milliV, deciV; uint8_t round;
+  milliV = (ADCvalue*100*33)>>12;
+  deciV = (ADCvalue*10*33)>>12;
+  round = (milliV&0x7)>5;
+  if(round){
+    deciV +=1;
+  }
+  return deciV;
 }
 
 // There are many choices to make when using the ADC, and many
@@ -286,8 +293,12 @@ void ADC0_InitTimer2ATriggerSeq3PD3(uint32_t period){
 
 
 
-void ADC0Seq3_Handler(void){
+void ADC0Seq3_Handler(void){int32_t previous, current;
   ADC0_ISC_R = 0x08;          // acknowledge ADC sequence 3 completion
+  previous = ADC_GetVoltage();
   ADCvalue = ADC0_SSFIFO3_R;  // 12-bit result
-  PrintVoltage();
+  current  = ADC_GetVoltage();
+  if(previous != current){
+    OS_ADCChange = 1;
+  }
 }

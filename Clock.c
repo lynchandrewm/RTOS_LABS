@@ -7,6 +7,9 @@
 #include <stdint.h>
 #include <stdio.h>
 #include "Timer5A.h"
+#include "OS.h"
+#include "ST7735.h"
+#include "Clock.h"
 #include "../inc/tm4c123gh6pm.h"
 
 void UpdateClock(void);
@@ -32,7 +35,6 @@ uint16_t static Millisecond = 0;
 #define MONTH          0x0000F000
 #define YEAR           0x3FFE0000
 #define LEAPYEAR_EN    0x80000000
-
 
 //milliseconds            bits 0-9
 //seconds                 bits 11-16
@@ -194,7 +196,29 @@ void Clock_GetDate(char string[19]){uint32_t localDate = Date;
   sprintf(string, "%s %d, %d", monthName, day, year); 
 }  
 
+uint8_t RTPrintClockEn[4][16];
 
+
+void PrintTimeOrDate(){char string[19];
+  for(int i = 0; i < 4; i++){
+    for(int k = 0; k < 16; k++){
+      if(RTPrintClockEn[i][k]==1){
+        Clock_GetTime(string);
+        ST7735_ds_SetCursor(i,0,k);
+        ST7735_ds_OutString(i,string);
+      } 
+      else if(RTPrintClockEn[i][k]==2){
+        Clock_GetDate(string);
+        ST7735_ds_SetCursor(i,0,k);
+        ST7735_ds_OutString(i,string);
+      }
+    }
+  }
+}
+
+void Clock_RTClockToggle(uint8_t device, uint8_t line, uint8_t clockType){
+  RTPrintClockEn[device][line] = clockType;
+}
 
 void Timer5A_Handler(void){
   TIMER5_ICR_R = TIMER_ICR_TATOCINT;// acknowledge TIMER4B timeout
@@ -242,7 +266,11 @@ void UpdateClock(void){ uint32_t localTime, localDate;
   millisecond++;
   if(millisecond == 1000){
     second++; 
+    OS_TimeChange = 1;
     millisecond = 0;
+  }
+  else{
+    OS_TimeChange = 0;
   }
   if(second == 60){
     minute++;

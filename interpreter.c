@@ -14,25 +14,6 @@ char interpreter_msg[21];
 /* the error message when an invalid command was passed */
 const char static * errorMsg = "Invalid Command";
 
-void INTERPRETER_handler(void){
-  UART_OutString(">");
-  char string[100];
-  UART_InString(string, 99);
-  INTERPRETER_parseMessage(string);
-  OutCRLF();
-  if(interpreter_device == -1){
-    UART_OutString(interpreter_msg);
-  }
-  else{
-    //UART_OutString(interpreter_msg);
-    ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
-    ST7735_ds_OutString(interpreter_device, "                    ");
-    ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
-    ST7735_ds_OutString(interpreter_device, interpreter_msg);
-  }
-  OutCRLF();
-}
-
 void INTERPRETER_initArray(){
   int i;
   for(i = 0; i < ROWS; i++){
@@ -90,6 +71,8 @@ void INTERPRETER_parseMessage(char* str){
     case 6:
       //Toggle Real Time ADC
       interpreter_msg[0] = '\0';
+      ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
+      ST7735_ds_OutString(i, "                    ");
       ADC_RTVoltageToggle(interpreter_device,interpreter_line);
       break;
     case 7:
@@ -98,8 +81,8 @@ void INTERPRETER_parseMessage(char* str){
       break;
     case 8:
       //set date
-      Clock_SetDay(strToInt(strArray[1]));
-      Clock_SetMonth(strToInt(strArray[2]));
+      Clock_SetDay(strToInt(strArray[2]));
+      Clock_SetMonth(strToInt(strArray[1]));
       Clock_SetYear(strToInt(strArray[3]));
       interpreter_msg[0] = 'D'; interpreter_msg[1] = 'a';interpreter_msg[2] = 't';interpreter_msg[3] = 'e';interpreter_msg[4] = ' ';interpreter_msg[5] = 's';interpreter_msg[6] = 'e';interpreter_msg[7] = 't';
       interpreter_msg[8] = '\0'; 
@@ -115,6 +98,18 @@ void INTERPRETER_parseMessage(char* str){
     case 10:
       //print date
       Clock_GetDate(interpreter_msg);
+      break;
+    case 11:
+      ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
+      ST7735_ds_OutString(i, "                    ");
+      Clock_RTClockToggle(interpreter_device, interpreter_line, 1);
+      interpreter_msg[0] = '\0';
+      break;
+    case 12:
+      ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
+      ST7735_ds_OutString(i, "                    ");
+      Clock_RTClockToggle(interpreter_device, interpreter_line, 2);
+      interpreter_msg[0] = '\0';
       break;
     default:
       for(i = 0; i < LengthOfString(errorMsg); i++){
@@ -242,6 +237,15 @@ uint8_t INTERPRETER_handleCommand(uint8_t index){
       }
       else if(strArray[0][index] == 'r' && strArray[0][index+1] == 'u' && strArray[0][index+2] == 'n' && strArray[0][index+3] == 't' && strArray[0][index+4] == 'i'&& strArray[0][index+5] == 'm' && strArray[0][index+6] == 'e'){
         return 3;
+      }
+      return 0xff;
+      break;
+    case 8:
+      if(strArray[0][index] == 's' && strArray[0][index+1] == 'h' && strArray[0][index+2] == 'o' && strArray[0][index+3] == 'w' && strArray[0][index+4] == 't' && strArray[0][index+5] == 'i'&& strArray[0][index+6] == 'm' && strArray[0][index+7] == 'e'){
+        return 11;
+      }
+      else if(strArray[0][index] == 's' && strArray[0][index+1] == 'h' && strArray[0][index+2] == 'o' && strArray[0][index+3] == 'w' && strArray[0][index+4] == 'd' && strArray[0][index+5] == 'a' && strArray[0][index+6] == 't' && strArray[0][index+7] == 'e'){
+        return 12;
       }
       return 0xff;
       break;

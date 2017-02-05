@@ -67,6 +67,7 @@ int8_t strcomp(const char* str1, const char* str2){
   if(*str2 != '\0'){
     return -1;
   }
+  return 0;
 }
 int8_t firstIndex(const char* str, const char* delim){
   int i = 0;

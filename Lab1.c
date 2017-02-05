@@ -16,6 +16,7 @@
 #include "Timer4A.h"
 #include "Clock.h"
 #include "PLL.h"
+#include "OS.h"
 #include "../inc/tm4c123gh6pm.h"
 
 void DisableInterrupts(void); // Disable interrupts
@@ -41,11 +42,26 @@ int main(void){
   ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
   ADC0_InitTimer2ATriggerSeq3(0, 8000000); // ADC channel 0, 10 Hz sampling
   Timer4A_Init(2000,7); //init the timer
-  Timer4A_AddPeriodicThread(INTERPRETER_handler);
+  Timer4A_AddPeriodicThread(OS_Scheduler);
   Clock_Init();
   EnableInterrupts();
+  char string[100];
   while(1){
-    WaitForInterrupt();
+    UART_OutString(">");
+    UART_InString(string, 99);
+    INTERPRETER_parseMessage(string);
+    OutCRLF();
+    if(interpreter_device == -1){
+      UART_OutString(interpreter_msg);
+    }
+    else{
+      //UART_OutString(interpreter_msg);
+      ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
+      ST7735_ds_OutString(interpreter_device, "                    ");
+      ST7735_ds_SetCursor(interpreter_device, 0, interpreter_line);
+      ST7735_ds_OutString(interpreter_device, interpreter_msg);
+    }
+    OutCRLF();
   }
 }
 
@@ -91,7 +107,6 @@ int main7(void){char string[100];
   ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
   ADC0_InitTimer2ATriggerSeq3(0, 8000000); // ADC channel 0, 10 Hz sampling
   Timer4A_Init(2000,4); //init the timer
-  Timer4A_AddPeriodicThread(INTERPRETER_handler);
   EnableInterrupts();
   while(1){
     WaitForInterrupt();
