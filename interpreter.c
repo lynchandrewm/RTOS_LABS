@@ -5,6 +5,7 @@
 #include "Timer4A.h"
 #include "Clock.h"
 #include "UART.h"
+#include "OS.h"
 
 static char strArray[ROWS][COLS];
 
@@ -53,8 +54,8 @@ void INTERPRETER_parseMessage(char* str){
       break;
     case 3:
       //timer
-      interpreter_msg[0] = 'T';interpreter_msg[1] = 'i';interpreter_msg[2] = 'm';interpreter_msg[3] = 'e';interpreter_msg[4] = ':';interpreter_msg[5] = ' ';
-      itoa(Timer4A_ReadPeriodicTime(), interpreter_msg, 10, 6);
+    interpreter_msg[0] = 'A';interpreter_msg[1] = 'v';interpreter_msg[2] = 'g';interpreter_msg[3] = 'r';interpreter_msg[4] = 't';interpreter_msg[5] = ':';interpreter_msg[6] = ' ';
+      itoa(OS_AvgRunTime(), interpreter_msg, 10, 7);
       break;
     case 4:
       //print string
