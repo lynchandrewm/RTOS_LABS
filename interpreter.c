@@ -54,7 +54,7 @@ void INTERPRETER_parseMessage(char* str){
       break;
     case 3:
       //timer
-    interpreter_msg[0] = 'A';interpreter_msg[1] = 'v';interpreter_msg[2] = 'g';interpreter_msg[3] = 'r';interpreter_msg[4] = 't';interpreter_msg[5] = ':';interpreter_msg[6] = ' ';
+      interpreter_msg[0] = 'A';interpreter_msg[1] = 'v';interpreter_msg[2] = 'g';interpreter_msg[3] = 'r';interpreter_msg[4] = 't';interpreter_msg[5] = ':';interpreter_msg[6] = ' ';
       itoa(OS_AvgRunTime(), interpreter_msg, 10, 7);
       break;
     case 4:
@@ -111,6 +111,14 @@ void INTERPRETER_parseMessage(char* str){
       ST7735_ds_OutString(i, "                    ");
       Clock_RTClockToggle(interpreter_device, interpreter_line, 2);
       interpreter_msg[0] = '\0';
+      break;
+    case 13:
+      interpreter_msg[0] = 'L';interpreter_msg[1] = 'n';interpreter_msg[2] = 'g';interpreter_msg[3] = 'r';interpreter_msg[4] = 't';interpreter_msg[5] = ':';interpreter_msg[6] = ' ';
+      itoa(OS_LongRunTime(), interpreter_msg, 10, 7);
+      break;
+    case 14:
+      interpreter_msg[0] = 'S';interpreter_msg[1] = 'm';interpreter_msg[2] = 'l';interpreter_msg[3] = 'r';interpreter_msg[4] = 't';interpreter_msg[5] = ':';interpreter_msg[6] = ' ';
+      itoa(OS_ShortRunTime(), interpreter_msg, 10, 7);
       break;
     default:
       for(i = 0; i < LengthOfString(errorMsg); i++){
@@ -248,8 +256,15 @@ uint8_t INTERPRETER_handleCommand(uint8_t index){
       else if(strArray[0][index] == 's' && strArray[0][index+1] == 'h' && strArray[0][index+2] == 'o' && strArray[0][index+3] == 'w' && strArray[0][index+4] == 'd' && strArray[0][index+5] == 'a' && strArray[0][index+6] == 't' && strArray[0][index+7] == 'e'){
         return 12;
       }
+      else if(strArray[0][index] == 'r' && strArray[0][index+1] == 'u' && strArray[0][index+2] == 'n' && strArray[0][index+3] == 't' && strArray[0][index+4] == 'i'&& strArray[0][index+5] == 'm' && strArray[0][index+6] == 'e' && strArray[0][index+7] == 'l'){
+        return 13;
+      }
+      else if(strArray[0][index] == 'r' && strArray[0][index+1] == 'u' && strArray[0][index+2] == 'n' && strArray[0][index+3] == 't' && strArray[0][index+4] == 'i'&& strArray[0][index+5] == 'm' && strArray[0][index+6] == 'e' && strArray[0][index+7] == 's'){
+        return 14;
+      }
       return 0xff;
       break;
+      
     default:
       return 0xff;
       break;

@@ -18,6 +18,7 @@
 #include "PLL.h"
 #include "OS.h"
 #include "../inc/tm4c123gh6pm.h"
+#include "SysTick.h"
 
 void DisableInterrupts(void); // Disable interrupts
 void EnableInterrupts(void);  // Enable interrupts
@@ -37,6 +38,7 @@ void timer4TestFunction2(){
 //final main
 int main(void){
   PLL_Init(Bus50MHz);       // set system clock to 50 MHz
+  SysTick_Init();             // initialize SysTick timer
   UART_Init();              // initialize UART
   INTERPRETER_initArray();
   ST7735_ds_InitR(INITR_REDTAB, 4, 4, 4, 4);
@@ -47,6 +49,7 @@ int main(void){
   EnableInterrupts();
   char string[100];
   while(1){
+    int b = OS_AvgRunTime();
     UART_OutString(">");
     UART_InString(string, 99);
     INTERPRETER_parseMessage(string);
